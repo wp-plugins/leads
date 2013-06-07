@@ -9,7 +9,7 @@ Requires at least: 3.3
 Tested up to: 3.5
 Stable Tag: 1.0.5.6
 
-Wordpress Lead Management is Wordpress's first fully extendable plugin for local CRM (Customer Relationship Management). Lead Management Plugin listens for form submissions & collects & stores visitor data into Wordpress. WordPress Leads provides a customer relationship management interface for viewing and editing lead data.
+Capture & store lead information, gather critical lead intelligence, manage web leads from within your site and close more deals.
 
 == Description ==
 
