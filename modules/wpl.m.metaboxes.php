@@ -78,36 +78,46 @@ function wplead_gravatar_metabox() {
 
 	$array = mysql_fetch_array($result);
 	
-	$date1 = new DateTime($array['date']);
-	$date2 = new DateTime(date('Y-m-d G:i:s'));
-	$interval = $date1->diff($date2);
+		$date1 = new DateTime($array['date']);
+
+		$date2 = new DateTime(date('Y-m-d G:i:s'));
+		$interval = $date1->diff($date2);
+		//print_r($date1);
+		//echo $date1->date;
+		$year = ($interval->y > 1) ? "Years" : "Year";
+		$month = ($interval->m > 1) ? "Months" : "Month";
+		$day = ($interval->d > 1) ? "Days" : "Day";
+		$hours = ($interval->h > 1) ? "Hours" : "Hour";
+		$minute = ($interval->i > 1) ? "Minutes" : "Minute"; 
 	//echo "difference " . $interval->y . " years, " . $interval->m." months, ".$interval->d." days, ".$interval->h." hours, ".$interval->i." minutes, "; exit;
 		
 	$email = get_post_meta( $post->ID , 'wpleads_email_address', true );
 	$first_name = get_post_meta( $post->ID , 'wpleads_first_name',true );
 	$last_name = get_post_meta( $post->ID , 'wpleads_last_name', true );
-	$size = 150;
-	$default = WPL_URL . '/images/gravatar_default_150.jpg';
-
-	$gravatar = "http://www.gravatar.com/avatar/" . md5( strtolower( trim( $email ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size;
-	
-	$profile_image = apply_filters('wpleads_profile_image',$gravatar);
 	?>
 	<div >
+		<script type="text/javascript">
+		jQuery(document).ready(function() {
+		  var timesince = jQuery("#session-time-since").first().html();
+		  jQuery(".timeago").html(timesince);
+		});</script>
 		<div class="inside" style='margin-left:-8px;text-align:center;'> 
 			<div id="quick-stats-box">
 			<div id="page_view_total">Total Page Views <span id="p-view-total"></span></div>
 			<div id="conversion_count_total"># of Conversions <span id="conversion-total"></span></div>
 			<br><br>
+			
 			<div id="last_touch_point">Time Since Last Conversion 
 				<span id="touch-point">
-					<?php 	$year = ($interval->y > 1) ? "Years" : "Year";
+					<span class='timeago' title='<?php echo $date1->date; ?>'></span>
+					<?php /* Not Working *	$year = ($interval->y > 1) ? "Years" : "Year";
 							$month = ($interval->m > 1) ? "Months" : "Month";
 							$day = ($interval->d > 1) ? "Days" : "Day";
 							$hours = ($interval->h > 1) ? "Hours" : "Hour";
 							$minute = ($interval->i > 1) ? "Minutes" : "Minute"; ?>
 					<?php
-					echo "<span class='touchpoint-year'><span class='touchpoint-value'>" . $interval->y . "</span> ".$year." </span><span class='touchpoint-month'><span class='touchpoint-value'>" . $interval->m."</span> ".$month." </span><span class='touchpoint-day'><span class='touchpoint-value'>".$interval->d."</span> ".$day." </span><span class='touchpoint-hour'><span class='touchpoint-value'>".$interval->h."</span> ".$hours." </span><span class='touchpoint-minute'><span class='touchpoint-value'>".$interval->i."</span> ".$minute."</span> Ago";
+
+					echo "<span class='touchpoint-year'><span class='touchpoint-value'>" . $interval->y . "</span> ".$year." </span><span class='touchpoint-month'><span class='touchpoint-value'>" . $interval->m."</span> ".$month." </span><span class='touchpoint-day'><span class='touchpoint-value'>".$interval->d."</span> ".$day." </span><span class='touchpoint-hour'><span class='touchpoint-value'>".$interval->h."</span> ".$hours." </span><span class='touchpoint-minute'><span class='touchpoint-value'>".$interval->i."</span> ".$minute."</span> Ago"; */
 					?>
 				</span>
 			</div>
