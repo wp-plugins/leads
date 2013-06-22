@@ -3,7 +3,8 @@
 function wpleads_activate()
 {
 	global $wpdb;
-
+	$blogids = ""; // define to kill error
+	$multisite = 0;
 	// Makes sure the plugin is defined before trying to use it
 	if ( ! function_exists( 'is_plugin_active_for_network' ) )
 		require_once( ABSPATH . '/wp-admin/includes/plugin.php' );

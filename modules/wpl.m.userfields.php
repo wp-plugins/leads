@@ -81,6 +81,4 @@ $wpleads_user_fields['notes']['name'] = 'wpleads_notes';
 $wpleads_user_fields['notes']['priority'] = 99;
 $wpleads_user_fields['notes']['nature'] = "textarea-5";
 
-
-
 ?>
