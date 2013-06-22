@@ -609,7 +609,7 @@ function wpleads_render_global_settings($key,$custom_fields,$active_tab)
 						break;	
 					case 'text':
 						echo '<input type="text" name="'.$field['id'].'" id="'.$field['id'].'" value="'.$option.'" size="30" />
-								<div class="wpl_tooltip tool_text" title="'.$field['desc'].'"></div>';
+								<div  title="'.$field['desc'].'">'.$field['desc'].'</div>';
 						break;
 					// textarea
 					case 'textarea':

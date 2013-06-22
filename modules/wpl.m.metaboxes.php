@@ -52,6 +52,49 @@ function wplead_disable_for_cpt( $default ) {
 }
 
 
+
+function wp_leads_get_search_keywords($url = '')
+{
+	// Get the referrer
+	//$referrer = (!empty($_SERVER['HTTP_REFERER'])) ? $_SERVER['HTTP_REFERER'] : '';
+
+	// Parse the referrer URL
+   
+  	$parsed_url = parse_url($url);
+  	$host = $parsed_url['host']; // base url
+    $se_match = array("google", "yahoo", "bing");
+
+		foreach($se_match as $val) {
+		  if (preg_match("/" . $val . "/", $url)){
+		  	$is_search_engine = stripslashes($bl);
+		  }
+		}
+
+	$query_str = (!empty($parsed_url['query'])) ? $parsed_url['query'] : '';
+	$query_str = (empty($query_str) && !empty($parsed_url['fragment'])) ? $parsed_url['fragment'] : $query_str;
+
+	// Parse the query string into a query array
+	parse_str($query_str, $query);
+	$empty_keywords = "Empty Keywords, User is probably logged into " . $is_search_engine;
+	// Check some major search engines to get the correct query var
+	$search_engines = array(
+		'q' => 'alltheweb|aol|ask|ask|bing|google',
+		'p' => 'yahoo',
+		'wd' => 'baidu'
+	);
+	foreach ($search_engines as $query_var => $se)
+	{
+		$se = trim($se);
+		preg_match('/(' . $se . ')\./', $host, $matches);
+		if (!empty($matches[1]) && !empty($query[$query_var])) {
+			return "From". $is_search_engine ." ". $query[$query_var];
+		} else {
+			return "From". $is_search_engine ." ". $empty_keywords;
+		}
+	}
+	// return false;
+}
+//echo wp_leads_get_search_keywords('http://www.google.co.th/url?sa=t&rct=j&q=keywordsssss&esrc=s&source=web&cd=4&ved=0CE8QFjAD&url=http%3A%2F%2Fwww.inboundnow.com%2Fhow-to-properly-set-up-wordpress-301-redirects%2F&ei=FMHDUZPqBMztiAfi_YCoBA&usg=AFQjCNFuh3aH04u2Z4xXl2XNb3emE95p5Q&sig2=yrdyyZz83KfGte6SNZL7gA&bvm=bv.48293060,d.aGc');
 /* ADD GRAVATAR METABOX TO SIDEBAR */
 add_action('add_meta_boxes', 'wplead_display_gravatar_metabox');
 function wplead_display_gravatar_metabox() {

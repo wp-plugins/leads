@@ -13,7 +13,7 @@
 	$tab_slug = 'wpl-main';
 	$wpleads_global_settings[$tab_slug]['label'] = 'Global Settings';	
 	
-	$wpleads_global_settings[$tab_slug]['options'][] = wpleads_add_option($tab_slug,"text","tracking-ids","","IDs of forms to track!","Enter in a value found in a HTML form's id attribute to track it as a conversion. Gravity Forms, Contact Form 7, and Ninja Forms are automatically tracked (no need to add their IDs in here)", $options=null);
+	$wpleads_global_settings[$tab_slug]['options'][] = wpleads_add_option($tab_slug,"text","tracking-ids","","IDs of forms to track","<p>Enter in a value found in a HTML form's id attribute to track it as a conversion.</p><p>Do not include the # in the id. <strong>Example format: Form_ID, Form-ID-2</strong></p><p>Gravity Forms, Contact Form 7, and Ninja Forms are automatically tracked (no need to add their IDs in here)</p>", $options=null);
 	/*SETUP END*/
 
 
