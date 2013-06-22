@@ -67,10 +67,35 @@ function wplead_display_gravatar_metabox() {
 	'high' );
 }
 
+function leads_time_diff($date1, $date2) {
+$time_diff = array();
+$diff = abs(strtotime($date2) - strtotime($date1));
+$years = floor($diff / (365*60*60*24));
+$months = floor(($diff - $years * 365*60*60*24) / (30*60*60*24));
+$days = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24)/ (60*60*24));
+$hours = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24 - $days*60*60*24)/ (60*60));
+$minutes = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24 - $days*60*60*24 - $hours*60*60) / 60);
+//$seconds = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24 - $days*60*60*24 - $hours*60*60 - $minutes*60));
+
+$time_diff['years'] = $years;
+$time_diff['y-text'] = ($years > 1) ? "Years" : "Year";
+$time_diff['months'] = $months;
+$time_diff['m-text'] = ($months > 1) ? "Months" : "Month";
+$time_diff['days'] = $days;
+$time_diff['d-text'] = ($days > 1) ? "Days" : "Day";
+$time_diff['hours'] = $hours;
+$time_diff['h-text'] = ($hours > 1) ? "Hours" : "Hour";
+$time_diff['minutes'] = $minutes;
+$time_diff['mm-text'] = ($minutes > 1) ? "Minutes" : "Minute"; 
+
+return $time_diff; 
+}
+
 function wplead_gravatar_metabox() {
 	global $post;
 	global $wpdb;
-	
+	//print_r($post);
+	$lead_creation = $post->post_date;
 	//define last touch point
 	$query = 'SELECT * FROM '.$wpdb->prefix.'lead_tracking WHERE lead_id = "'.$post->ID.'" AND nature="conversion" ORDER BY id DESC LIMIT 1';
 	$result = mysql_query($query);
@@ -79,21 +104,26 @@ function wplead_gravatar_metabox() {
 	$array = mysql_fetch_array($result);
 	
 		$date1 = new DateTime($array['date']);
-
+		$final_date1 = $date1->format('Y-m-d G:i:s');
 		$date2 = new DateTime(date('Y-m-d G:i:s'));
-		$interval = $date1->diff($date2);
-		//print_r($date1);
-		//echo $date1->date;
-		$year = ($interval->y > 1) ? "Years" : "Year";
-		$month = ($interval->m > 1) ? "Months" : "Month";
-		$day = ($interval->d > 1) ? "Days" : "Day";
-		$hours = ($interval->h > 1) ? "Hours" : "Hour";
-		$minute = ($interval->i > 1) ? "Minutes" : "Minute"; 
-	//echo "difference " . $interval->y . " years, " . $interval->m." months, ".$interval->d." days, ".$interval->h." hours, ".$interval->i." minutes, "; exit;
-		
-	$email = get_post_meta( $post->ID , 'wpleads_email_address', true );
-	$first_name = get_post_meta( $post->ID , 'wpleads_first_name',true );
-	$last_name = get_post_meta( $post->ID , 'wpleads_last_name', true );
+		$final_date2 = $date2->format('Y-m-d G:i:s');
+
+		$date_obj = leads_time_diff($lead_creation, $final_date2);
+
+		$years = $date_obj['years'];
+		$months = $date_obj['months'];
+		$days = $date_obj['days'];
+		$hours = $date_obj['hours'];
+		$minutes = $date_obj['minutes'];
+		$year_text = $date_obj['y-text'];
+		$month_text = $date_obj['m-text'];
+		$day_text = $date_obj['d-text'];
+		$hours_text = $date_obj['h-text'];
+		$minute_text = $date_obj['mm-text']; 
+
+		$email = get_post_meta( $post->ID , 'wpleads_email_address', true );
+		$first_name = get_post_meta( $post->ID , 'wpleads_first_name',true );
+		$last_name = get_post_meta( $post->ID , 'wpleads_last_name', true );
 	?>
 	<div >
 		<script type="text/javascript">
@@ -106,21 +136,17 @@ function wplead_gravatar_metabox() {
 			<div id="page_view_total">Total Page Views <span id="p-view-total"></span></div>
 			<div id="conversion_count_total"># of Conversions <span id="conversion-total"></span></div>
 			<br><br>
-			
+	
 			<div id="last_touch_point">Time Since Last Conversion 
 				<span id="touch-point">
-					<span class='timeago' title='<?php echo $date1->date; ?>'></span>
-					<?php /* Not Working *	$year = ($interval->y > 1) ? "Years" : "Year";
-							$month = ($interval->m > 1) ? "Months" : "Month";
-							$day = ($interval->d > 1) ? "Days" : "Day";
-							$hours = ($interval->h > 1) ? "Hours" : "Hour";
-							$minute = ($interval->i > 1) ? "Minutes" : "Minute"; ?>
+					
 					<?php
 
-					echo "<span class='touchpoint-year'><span class='touchpoint-value'>" . $interval->y . "</span> ".$year." </span><span class='touchpoint-month'><span class='touchpoint-value'>" . $interval->m."</span> ".$month." </span><span class='touchpoint-day'><span class='touchpoint-value'>".$interval->d."</span> ".$day." </span><span class='touchpoint-hour'><span class='touchpoint-value'>".$interval->h."</span> ".$hours." </span><span class='touchpoint-minute'><span class='touchpoint-value'>".$interval->i."</span> ".$minute."</span> Ago"; */
+					echo "<span class='touchpoint-year'><span class='touchpoint-value'>" . $years . "</span> ".$year_text." </span><span class='touchpoint-month'><span class='touchpoint-value'>" . $months."</span> ".$month_text." </span><span class='touchpoint-day'><span class='touchpoint-value'>".$days."</span> ".$day_text." </span><span class='touchpoint-hour'><span class='touchpoint-value'>".$hours."</span> ".$hours_text." </span><span class='touchpoint-minute'><span class='touchpoint-value'>".$minutes."</span> ".$minute_text."</span> Ago"; 
 					?>
 				</span>
 			</div>
+
 			<div id="time-since-last-visit"></div>
 			<div id="lead-score"></div><!-- Custom Before Quick stats and After Hook here for custom fields shown -->
 			</div>
@@ -161,7 +187,7 @@ function wplead_ip_address_metabox() {
 			<div id='last-conversion-box'>
 	
 						<div id='lead-geo-data-area'>
-							<a class="maps-link" href="https://maps.google.com/maps?f=q&amp;source=embed&amp;hl=en&amp;geocode=&amp;q=<?php echo $latitude.','.$longitude; ?>&z=12" target='_blank'>View Map</a>
+							
 						<?php
 						if (is_array($geo_array))
 						{
@@ -172,14 +198,20 @@ function wplead_ip_address_metabox() {
 							unset($geo_array['geoplugin_currencySymbol_UTF8']);
 							unset($geo_array['geoplugin_currencySymbol']);
 							unset($geo_array['geoplugin_dmaCode']);
-
-							echo "<div class='lead-geo-field'><span class='geo-label'>City:</span>" . $geo_array['geoplugin_city'] . "</div>";
+							if (isset($geo_array['geoplugin_city']) && $geo_array['geoplugin_city'] != ""){
+							echo "<div class='lead-geo-field'><span class='geo-label'>City:</span>" . $geo_array['geoplugin_city'] . "</div>"; }
+							if (isset($geo_array['geoplugin_regionName']) && $geo_array['geoplugin_regionName'] != ""){
 							echo "<div class='lead-geo-field'><span class='geo-label'>State:</span>" . $geo_array['geoplugin_regionName'] . "</div>";
-							
+							}
+							if (isset($geo_array['geoplugin_areaCode']) && $geo_array['geoplugin_areaCode'] != ""){
 							echo "<div class='lead-geo-field'><span class='geo-label'>Area Code:</span>" . $geo_array['geoplugin_areaCode'] . "</div>";
+							}
+							if (isset($geo_array['geoplugin_countryName']) && $geo_array['geoplugin_countryName'] != ""){
 							echo "<div class='lead-geo-field'><span class='geo-label'>Country:</span>" . $geo_array['geoplugin_countryName'] . "</div>";
+							}
+							if (isset($geo_array['geoplugin_regionName']) && $geo_array['geoplugin_regionName'] != ""){
 							echo "<div class='lead-geo-field'><span class='geo-label'>IP Address:</span>" . $ip_address . "</div>";
-							
+							}
 							/*
 							foreach ($geo_array as $key=>$val)
 							{
@@ -190,19 +222,16 @@ function wplead_ip_address_metabox() {
 								echo "</tr>";
 							} */
 						}
-						?>
-	
-	<div id="lead-google-map">
-			<!-- <iframe width="278" height="276" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;q=<?php echo $city.' '.$state; ?>&amp;aq=&amp;output=embed&amp;z=5"></iframe><br /><small><a class="maps-link" href="https://maps.google.com/maps?f=q&amp;source=embed&amp;hl=en&amp;geocode=&amp;q=<?php echo $city.' '.$state; ?>" target='_blank'>View Larger Map</a></small> -->
-			<iframe width="278" height="276" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;q=<?php echo $latitude.','.$longitude; ?>&amp;aq=&amp;output=embed&amp;z=11"></iframe>
-	</div>
-						</div>
-			</div>
-				
-		</div>	
-	</div>
-	<?php
-}
+						if (($latitude != 0) && ($longitude != 0)){ 
+						echo '<a class="maps-link" href="https://maps.google.com/maps?f=q&amp;source=embed&amp;hl=en&amp;geocode=&amp;q='.$latitude.','.$longitude.'&z=12" target="_blank">View Map</a>';	
+						echo '<div id="lead-google-map">
+								<iframe width="278" height="276" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;q='.$latitude.','.$longitude.'&amp;aq=&amp;output=embed&amp;z=11"></iframe>
+								</div>'; } else {
+									echo "<h2>No Geo data collected</h2>";
+								}
+						echo '</div></div></div></div>';			
+		
+	}
 
 /* Bottom SIDEBAR temporarily off 
 add_action('add_meta_boxes', 'wplead_display_geo_map_metabox');
@@ -600,6 +629,9 @@ function wpleads_display_metabox_conversion() {
 	if (!$result){ echo $sql; echo mysql_error(); exit; }
 
 	$num_conversion = mysql_num_rows($result);
+	if (empty($num_conversion)) {
+		echo "<h2 style='background:transparent;'>No Conversions Tracked. This person could have javascript disabled or you have a javascript error on your site.</h2>";
+	}
 	while ($array = mysql_fetch_array($result))
 	{
 		//echo "here";
@@ -609,35 +641,43 @@ function wpleads_display_metabox_conversion() {
 		//echo $array['data'];
 		//echo "<br>";
 		$date1 = new DateTime($array['date']);
+		$final_date1 = $date1->format('Y-m-d G:i:s');
 		$date2 = new DateTime(date('Y-m-d G:i:s'));
-		$interval = $date1->diff($date2);
-		$year = ($interval->y > 1) ? "Years" : "Year";
-							$month = ($interval->m > 1) ? "Months" : "Month";
-							$day = ($interval->d > 1) ? "Days" : "Day";
-							$hours = ($interval->h > 1) ? "Hours" : "Hour";
-							$minute = ($interval->i > 1) ? "Minutes" : "Minute"; 
+		$final_date2 = $date2->format('Y-m-d G:i:s');
+		$date_obj = leads_time_diff($final_date1, $final_date2);
+		$years = $date_obj['years'];
+		$months = $date_obj['months'];
+		$days = $date_obj['days'];
+		$hours = $date_obj['hours'];
+		$minutes = $date_obj['minutes'];
+
+		$year_text = $date_obj['y-text'];
+		$month_text = $date_obj['m-text'];
+		$day_text = $date_obj['d-text'];
+		$hours_text = $date_obj['h-text'];
+		$minute_text = $date_obj['mm-text']; 
 		$data = $data['items'];
 		//print_r($data);exit;
 		echo '<a class="session-anchor" id="view-session-'.$num_conversion.'""></a><div id="conversion-tracking" class="wpleads-conversion-tracking-table" summary="Conversion Tracking">
 			
 			<div class="conversion-tracking-header">
 					<h2><strong>Visit '.$num_conversion.'</strong> on <span class="shown_date">'.date_format($date, 'F jS, Y \a\t g:ia (l)').'</span><span class="toggle-conversion-list">-</span></h2> <span class="hidden_date date_'.$num_conversion.'">'.date_format($date, 'F jS, Y \a\t g:ia').'</span>
-			</div>
-			<div class="conversion-session-view session_id_'.$num_conversion.'">
+			</div>';
+		echo '<div class="conversion-session-view session_id_'.$num_conversion.'">
 			<div class="session-stats">
 			<span class="session-stats-header">Session Stats</span>
 			
-			<span id="session-time-since"><span class="touchpoint-year"><span class="touchpoint-value">' . $interval->y . '</span> '.$year.' </span><span class="touchpoint-month"><span class="touchpoint-value">' . $interval->m.'</span> '.$month.' </span><span class="touchpoint-day"><span class="touchpoint-value">'.$interval->d.'</span> '.$day.' </span><span class="touchpoint-hour"><span class="touchpoint-value">'.$interval->h.'</span> '.$hours.' </span><span class="touchpoint-minute"><span class="touchpoint-value">'.$interval->i.'</span> '.$minute.'</span> Ago</span>
+			<span id="session-time-since"><span class="touchpoint-year"><span class="touchpoint-value">' . $years . '</span> '.$year_text.' </span><span class="touchpoint-month"><span class="touchpoint-value">' . $months.'</span> '.$month_text.' </span><span class="touchpoint-day"><span class="touchpoint-value">'.$days.'</span> '.$day_text.' </span><span class="touchpoint-hour"><span class="touchpoint-value">'.$hours.'</span> '.$hours_text.' </span><span class="touchpoint-minute"><span class="touchpoint-value">'.$minutes.'</span> '.$minute_text.'</span> Ago</span>
 				<span class="session-head">Event Freshness</span>
 				<div id="session-pageviews">
 				<span id="pages-view-in-session">10</span>
 				<span class="session-head page-view-sess">Pages Viewed in Session</span>
 				</div>
 			</div>';
-
 			$num_conversion--;	
 		
 		//print_r($data);exit;
+		echo "<div class='leads-visit-list'>";
 		$i = 0;
 		foreach ($data as $key => $value)
 		{		
@@ -701,7 +741,7 @@ function wpleads_display_metabox_conversion() {
 				</div>
 			
 		</div>
-		
+		</div><!-- .leads-visit-list end -->
 		</div><!-- end .conversion-session-view -->
 		</div><!-- end #conversion-tracking -->
 		

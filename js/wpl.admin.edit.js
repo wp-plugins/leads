@@ -66,9 +66,10 @@ jQuery(document).ready(function () {
 	});
 
 	 jQuery(".conversion-tracking-header").on("click", function(event){
+	 //	alert("yes");
 var link = jQuery(this).find(".toggle-conversion-list");
-var conversion_log = jQuery(this).parent().find(".conversion-session-view");
-  conversion_log.toggle();
+var conversion_log = jQuery(this).parent().find(".leads-visit-list, .session-stats").toggle();
+
       if (jQuery(conversion_log).is(":visible")) {
                  link.text('-');                
             } else {

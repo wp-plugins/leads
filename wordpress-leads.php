@@ -132,8 +132,12 @@ if (!@function_exists('lp_check_active'))
 	add_action('wp_footer','wpl_register_ajax');
 	function wpl_register_ajax() 
 	{
+
 		global $post;
+		if (isset($post)&&!$post->post_type=='landing-page') 
+		{
 		include_once(WPL_PATH . '/js/wpl.leads-tracking.js.php');
+		}
 	}
 	
 	//add additional tracking to Stand Alone.

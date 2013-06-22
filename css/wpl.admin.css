@@ -253,7 +253,7 @@ border-top: 1px solid #EBEBEA;
 padding-top: 10px;
 }
 .lp-next-path {
-	background: transparent url('/wp-content/plugins/wordpress-leads/images/arrow-down.png') top left no-repeat;
+	background: transparent url('/wp-content/plugins/leads/images/arrow-down.png') top left no-repeat;
 width: 16px;
 height: 16px;
 position: absolute;
@@ -324,7 +324,9 @@ z-index: 200;
 {
 	background-color:#fff;
 }
-	
+#wplead_metabox_conversion .inside {
+	background-color: transparent;
+}	
 .postbox 
 {
 	background-color:#fff;
@@ -368,7 +370,7 @@ font-size: 16px;
 	font-weight: normal;
 }
 .wpl-raw-data-td-value span {
-	background: #f2f2f2 url('/wp-content/plugins/wordpress-leads/images/gradient.png') repeat-x top left;
+	background: #f2f2f2 url('/wp-content/plugins/leads/images/gradient.png') repeat-x top left;
 border: 1px solid #CECDCA;
 -webkit-border-radius: 2px;
 -moz-border-radius: 2px;
@@ -432,7 +434,7 @@ position: relative;
 #lead_name_overlay {
 position: absolute;
 top: 129px;
-background: transparent url('/wp-content/plugins/wordpress-leads/images/black-50-trans.png') top left;
+background: transparent url('/wp-content/plugins/leads/images/black-50-trans.png') top left;
 color: #fff;
 width: 150px;
 text-align: center;
