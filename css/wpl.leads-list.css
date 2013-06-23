@@ -29,7 +29,27 @@ td.last-name {
 	font-size: 17px;
 padding-top: 8px;
 }
-
+#cb {
+	width: 22px;
+}
+#conversion-count {
+width: 77px;
+text-align: center;}
+#page-views {
+	width: 73px;
+text-align: center;
+}
+.wp-list-table td.conversion-count, .wp-list-table td.page-views{
+    font-size: 18px;
+    color: #000;
+	margin: 0;
+	text-align: center;
+	padding-top: 15px;
+	border-right: 1px solid #EBEBEA;
+}
+.wp-list-table td.conversion-count {
+border-left: 1px solid #EBEBEA;	
+}
 .mark-viewed {
 	margin-left: 8px;
 font-size: 12px;

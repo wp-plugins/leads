@@ -9,7 +9,7 @@
 	
 	?>	
 	<script type='text/javascript'>
-	/***look for form conversion elements and record action***/
+	/* WP-leads */
 	var form = jQuery('.wpl-track-me');
 
 	if (form.length>0)
@@ -34,6 +34,7 @@
 			var firstname = "";
 			var lastname = "";			
 			var json = JSON.stringify(data_block);
+			var page_view_count = jQuery(data_block.items).length;
 			submit_halt = 1;
 
 			//alert('1');
@@ -125,6 +126,7 @@
 					first_name: firstname, 
 					last_name: lastname,
 					wp_lead_uid: wp_lead_uid,
+					page_view_count: page_view_count,
 					json: json,
 					nature: 'conversion',
 					raw_post_values_json : post_values_json,

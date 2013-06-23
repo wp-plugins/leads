@@ -1,6 +1,5 @@
 <?php
 
-
 add_action('admin_init', 'wpleads_rebuild_permalinks');
 function wpleads_rebuild_permalinks()
 {
@@ -44,11 +43,6 @@ function wpleads_register() {
 }
 
 /*********PREPARE COLUMNS FOR LEADS***************/
-/***********************************************************************/
-/***********************************************************************/
-/***********************************************************************/
-/***********************************************************************/
-
 
 if (is_admin())
 {
@@ -62,7 +56,10 @@ if (is_admin())
 			"last-name" => "Last Name",
 			"title" => "Email",	
 			"status" => "Status",
-			"company" => "Company",
+			
+			// "company" => "Company", Custom Column
+			'conversion-count' => "Conversion Count",
+			"page-views" => "Total Page Views",
 			"date" => "Date"
 		);
 		return $cols;
@@ -101,7 +98,15 @@ if (is_admin())
 			case "status":
 			  $lead_status = get_post_meta( $post_id, 'wp_lead_status', true);
 			  echo $lead_status;
+			  break; 
+			  case "conversion-count":
+			  $conversion_count = get_post_meta( $post_id, 'wpl-lead-conversion-count', true);
+			  echo $conversion_count;
 			  break;  
+			case "page-views":
+			  $page_views = get_post_meta( $post_id, 'wpl-lead-page-view-count', true);
+			  echo $page_views;
+			  break;    
 			case "company":
 			  $company = get_post_meta( $post_id, 'wpleads_company_name', true);
 			  echo $company;
@@ -241,7 +246,7 @@ if (is_admin())
 		// ...
 		if (isset($_REQUEST['post_type'])&&$_REQUEST['post_type']=='wp-lead'&&isset($_REQUEST['post']))
 		{
-			print_r($_REQUEST); 
+			//print_r($_REQUEST); 
 			// 1. get the action
 			$wp_list_table = _get_list_table('WP_Posts_List_Table');
 			$action = $wp_list_table->current_action();

@@ -14,6 +14,16 @@ jQuery(document).ready(function($) {
 			jQuerylist.appendTo(jQueryfirstChecked);
 		}); 
 		
+		jQuery("body").on('click', '.lead-grav-img', function () {
+			var checked = jQuery(this).parent().parent().find(".check-column input").is(':checked');
+			if (checked === false) {
+				jQuery(this).parent().parent().find(".check-column input").attr("checked", "checked");
+			} else {
+				jQuery(this).parent().parent().find(".check-column input").removeAttr('checked');
+			}
+			
+   		});
+
 		jQuery('.column-status').each(
 			
 			function(){

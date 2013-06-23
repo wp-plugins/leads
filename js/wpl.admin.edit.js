@@ -17,7 +17,14 @@ jQuery(document).ready(function () {
 		}
 		jQuery(this).find(".touchpoint-minute").show();
 	}); 
-	
+	var hideempty = jQuery("#touch-point span:visible").length;
+	var hideago = jQuery("#session-time-since:visible").length;
+	if (hideempty === 0) {
+		jQuery("#touch-point").html("<strong>Moments ago</strong>")
+	}
+	if (hideago === 0) {
+		jQuery("#session-time-since").text("Just Now!");
+	}
 	jQuery("#submitdiv .hndle").text("Update Lead Information");
 	var html = '<a class="add-new-h2" href="edit.php?post_type=wp-lead">Back</a>';
 	jQuery('.add-new-h2').before(html);
@@ -25,7 +32,7 @@ jQuery(document).ready(function () {
 	//populate country
 	jQuery('.wpleads-country-dropdown').val(jQuery('#hidden-country-value').val());
 	
-	jQuery('.add-new-link').live('click', function(e){
+	jQuery('.add-new-link').on('click', function(e){
 		var count = jQuery('#wpleads_websites-container .wpleads_link').size();
 		var true_count = count+1;
 		var html = '<input name="wpleads_websites['+count+']" class="wpleads_link" type="text" size="70" value="" />';
@@ -40,6 +47,9 @@ jQuery(document).ready(function () {
 		
         function(){
    			// hide empty fields
+   		 if( jQuery(this).val() ) {
+ 			jQuery(this).parent().parent().show();
+            }	
           if( !jQuery(this).val() ) {
  			jQuery(this).parent().parent().hide().addClass('hidden-lead-fields');
             }
@@ -77,11 +87,19 @@ var conversion_log = jQuery(this).parent().find(".leads-visit-list, .session-sta
             }    
 }); 
  	var textchange = jQuery("#timestamp").html().replace("Published", "Created");
-  		jQuery('#timestamp').html(textchange);
+  	jQuery('#timestamp').html(textchange);
 	var pageviews = jQuery(".marker").size();
 	var totalconversions = jQuery(".wpleads-conversion-tracking-table").size();
-	jQuery("#p-view-total").text(pageviews);
-	jQuery("#conversion-total").text(totalconversions);
+	var conversion_empty = jQuery("#conversion-total").text();
+	var views_empty = jQuery("#p-view-total").text();
+	if (views_empty === ""){
+		jQuery("#p-view-total").text(pageviews);
+	}
+	
+	var conversion_empty = jQuery("#conversion-total").text();
+	if (conversion_empty === ""){
+		jQuery("#conversion-total").text(totalconversions);
+	}
 	jQuery('h2 .nav-tab').eq(0).css("margin-left", "10px");
 jQuery("#message.updated").text("Lead Updated").css("padding", "10px");
 		jQuery('.wpleads-conversion-tracking-table').each(function() {

@@ -195,6 +195,7 @@ function wpleads_hook_store_lead_post($data)
 		global $wpdb;
 		(isset(	$_POST['nature'] )) ? $nature = $_POST['nature'] : $nature = 1;
 		(isset(	$_POST['json'] )) ? $json = $_POST['json'] : $json = 0;
+		(isset(	$_POST['page_view_count'] )) ? $view_count = $_POST['page_view_count'] : $view_count = 0;
 		
 
 		$timezone_format = _x('Y-m-d G:i:s', 'timezone date format');
@@ -208,26 +209,44 @@ function wpleads_hook_store_lead_post($data)
 		if (!$result){ echo $query; echo mysql_error(); exit; }
 		
 		setcookie('user_data_json', "",time()+3600,"/");
-		
-		//first add to varation list if not present.
-		$conversions = get_post_meta($data['lead_id'],'wpl-lead-conversions', true);
-		
-		if ($conversions)
+
+		/* Store number of page views as meta */
+		$current_page_view_count = get_post_meta($data['lead_id'],'wpl-lead-page-view-count', true);
+		if ($current_page_view_count)
 		{
-			$array_conversions = explode(',',$conversions);
-			if (!in_array($data['lp_id'],$array_conversions))
-			{
-				$array_conversions[] = $data['lp_id'];
-			}
+			$add_count_views = $view_count;
 		}
 		else
 		{					
-			$array_conversions[] = $data['lp_id'];				
+			$current_page_view_count = 0;
+			$add_count_views = $view_count;			
+		}
+		$increment_page_views = $current_page_view_count + $add_count_views;
+		update_post_meta($data['lead_id'],'wpl-lead-page-view-count', $increment_page_views);
+		/* End Store number of page views as meta */
+
+		/* Store conversions as meta */
+		$conversions = get_post_meta($data['lead_id'],'wpl-lead-conversions', true);
+
+		if ($conversions)
+		{
+			$array_conversions = explode(',',$conversions);
+			$count_of_conversions = count($array_conversions);
+			// if (!in_array($data['lp_id'],$array_conversions)) {
+				$array_conversions[] = $data['lp_id'];
+				//$array_conversions[] = $data['lp_id'];
+			//}
+		}
+		else
+		{					
+			$array_conversions[] = $data['lp_id'];
+			$count_of_conversions = 0;			
 		}
 		
-		//$array_conversions = array_unique($array_conversions);
 		update_post_meta($data['lead_id'],'wpl-lead-conversions', implode(',',$array_conversions));
-
+		/* Store conversions count as meta */
+		$increment_conversions = $count_of_conversions + 1;
+		update_post_meta($data['lead_id'],'wpl-lead-conversion-count', $increment_conversions);
 		
 		//update raw post data json 
 		$raw_post_data = get_post_meta($data['lead_id'],'wpl-lead-raw-post-data', true);

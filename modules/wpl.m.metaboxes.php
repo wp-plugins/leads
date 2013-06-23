@@ -167,6 +167,8 @@ function wplead_gravatar_metabox() {
 		$email = get_post_meta( $post->ID , 'wpleads_email_address', true );
 		$first_name = get_post_meta( $post->ID , 'wpleads_first_name',true );
 		$last_name = get_post_meta( $post->ID , 'wpleads_last_name', true );
+		$conversions_count = get_post_meta($post->ID,'wpl-lead-conversion-count', true);
+		$page_view_count = get_post_meta($post->ID,'wpl-lead-page-view-count', true);
 	?>
 	<div >
 		<script type="text/javascript">
@@ -176,8 +178,8 @@ function wplead_gravatar_metabox() {
 		});</script>
 		<div class="inside" style='margin-left:-8px;text-align:center;'> 
 			<div id="quick-stats-box">
-			<div id="page_view_total">Total Page Views <span id="p-view-total"></span></div>
-			<div id="conversion_count_total"># of Conversions <span id="conversion-total"></span></div>
+			<div id="page_view_total">Total Page Views <span id="p-view-total"><?php echo $page_view_count; ?></span></div>
+			<div id="conversion_count_total"># of Conversions <span id="conversion-total"><?php echo $conversions_count; ?></span></div>
 			<br><br>
 	
 			<div id="last_touch_point">Time Since Last Conversion 
@@ -461,11 +463,24 @@ function wpleads_display_metabox_main() {
 		</div><!-- end wpleads_metabox_main AKA Tab 1-->
 		<div class="wpl-tab-display" id="wpleads_lead_tab_conversions" style="display: <?php if ($active_tab == 'wpleads_lead_tab_conversions') { echo 'block;'; } else { echo 'none;'; } ?>">
 			<div id="conversions-data-display">
-			<?php
-						
+			<?php 
+			$test_array = '{"items":[{"id":"1","current_page":"http://lp.dev/go/test-page/?lp-variation-id=1","timestamp":"2013-5-6 17:8:6","referrer":"http://lp.dev/go/test-page/","original_referrer":"http://lp.dev/go/test-page/"},{"id":2,"current_page":"http://lp.dev/go/test-page/?lp-variation-id=0&codekitCB=393638936.159101","timestamp":"2013-5-6 17:8:56","referrer":"http://lp.dev/go/test-page/"},{"id":3,"current_page":"http://lp.dev/go/test-page/?lp-variation-id=1","timestamp":"2013-5-6 17:9:0","referrer":"http://lp.dev/go/test-page/"}]}';	
+			$php_array = json_decode($test_array, true);
+				foreach($php_array as  $key=>$val)
+				{
+					$final_page_count = count($val);
+				}
+			//print_r($php_array); 
+			
+
 			//first add to varation list if not present.
 			$conversions = get_post_meta($post->ID,'wpl-lead-conversions', true);
-			
+			$conversions_count = get_post_meta($post->ID,'wpl-lead-conversion-count', true);
+			$page_view_count = get_post_meta($post->ID,'wpl-lead-page-view-count', true);
+			$raw2 =get_post_meta($post->ID,'wpl-lead-conversions', true);
+			$raw = get_post_meta($post->ID,'wpleads_conversion_data', true);
+			//echo "count" . $page_view_count;
+			//echo $raw2;
 			if ($conversions)
 			{
 				echo "<h2>Recent Conversions</h2>";
@@ -477,7 +492,7 @@ function wpleads_display_metabox_main() {
 				{
 					$title = get_the_title($val);
 					$display_location = get_permalink($val);
-					echo "<div class='recent-conversion-item'>".$num.". <a href='{$display_location}' id='lead-session-".$num."' rel='".$num."' target='_blank'>{$title}</a><span class='conversion-date'></span><span class='view-this-lead-session' rel='".$num."'> <a rel='".$num."' href='#view-session-".$num."'>view visit details</a></span></div>";
+					echo "<div class='recent-conversion-item'>".$num.". <a href='{$display_location}' id='lead-session-".$num."' rel='".$num."' target='_blank'>{$title}</a><span class='conversion-date'></span><span class='view-this-lead-session' rel='".$num."'> <a rel='".$num."' href='#view-session-".$num."'>(view visit path)</a></span></div>";
 					$num++;
 				}
 				echo "</div>";
@@ -675,13 +690,15 @@ function wpleads_display_metabox_conversion() {
 	if (empty($num_conversion)) {
 		echo "<h2 style='background:transparent;'>No Conversions Tracked. This person could have javascript disabled or you have a javascript error on your site.</h2>";
 	}
+	$array_page_view_total = array();
 	while ($array = mysql_fetch_array($result))
 	{
 		//echo "here";
+		
 		$old = null;
 		$date = date_create($array['date']);
 		$data = json_decode( $array['data'] , true);
-		//echo $array['data'];
+		
 		//echo "<br>";
 		$date1 = new DateTime($array['date']);
 		$final_date1 = $date1->format('Y-m-d G:i:s');
@@ -724,7 +741,8 @@ function wpleads_display_metabox_conversion() {
 		$i = 0;
 		foreach ($data as $key => $value)
 		{		
-
+			
+			$array_page_view_total[] = $i;
 			($key==0 && $value['referrer'] ) ?	$display_location = $value['referrer'] : $display_location = $value['current_page'];			
 			if ( isset($old) && $display_location == $old)	{	continue; } else { $old = $display_location; $i++;	 }			
 			
@@ -740,7 +758,7 @@ function wpleads_display_metabox_conversion() {
 				?>
 				<div class="lp-page-view-item">
 					
-						<span class='marker'><?php echo $i; ?></span> <a href='<?php echo $value['referrer']; ?>' title='' target='_blank'><?php echo $value['referrer']; ?></a>
+						<span class='marker'><?php echo $i; ?></span> <a href='<?php echo $value['referrer']; ?>' title='<?php echo $value['referrer']; ?>' target='_blank'><?php echo $value['referrer']; ?></a>
 									
 				</div>
 				<?php
@@ -748,7 +766,7 @@ function wpleads_display_metabox_conversion() {
 				?>
 				<div class="lp-page-view-item">
 					
-						<span class='marker'><?php echo $i; ?></span> <a href='<?php echo $value['current_page'] ?>' title='' target='_blank'><?php echo $value['current_page']; ?></a>
+						<span class='marker'><?php echo $i; ?></span> <a href='<?php echo $value['current_page'] ?>' title='<?php echo $value['current_page'] ?>' target='_blank'><?php echo $value['current_page']; ?></a>
 									
 				</div>
 				<?php
@@ -758,7 +776,7 @@ function wpleads_display_metabox_conversion() {
 			?>
 				<div class="lp-page-view-item">
 					<div class='lp-next-path'></div>
-						<span class='marker'><?php echo $i; ?></span> <a href='<?php echo $display_location; ?>' title='' target='_blank'><?php echo $display_location; ?></a>
+						<span class='marker'><?php echo $i; ?></span> <a href='<?php echo $display_location; ?>' title='<?php echo $display_location; ?>' target='_blank'><?php echo $display_location; ?></a>
 									
 				</div>
 			<?php
@@ -791,6 +809,7 @@ function wpleads_display_metabox_conversion() {
 		<?php
 	}
 	//update_option($post->ID,'wpl-lead-conversions',implode(',',$conversions));
+	// echo count($array_page_view_total);
 }
 
  ?>
