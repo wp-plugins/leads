@@ -12,8 +12,8 @@ jQuery(document).ready(function () {
 	jQuery('.touchpoint-value').each(function() {
 		var touch_val = jQuery(this).text();
 
-		if ( touch_val === "0" ) {
-			jQuery(this).parent().hide();
+		if ( touch_val != "0" ) {
+			jQuery(this).parent().show();
 		}
 		jQuery(this).find(".touchpoint-minute").show();
 	}); 
@@ -118,12 +118,7 @@ console.log(correct_session);
 jQuery(".conversion-session-view").hide();
 jQuery(correct_session).show();
 });	
-jQuery('.conversion-date').each(function (i) {
-var inew = i + 1;
-var new_date = ".date_" + inew; 
-var get_text = jQuery(new_date).text();
-jQuery(this).append(" on " + get_text);
-});	
+
 // lead mapping 
 var selectbox = jQuery('<select style="display:none" name="NOA" class="id_NOA"></select>'); 
 jQuery("#raw-data-display").prepend(selectbox);

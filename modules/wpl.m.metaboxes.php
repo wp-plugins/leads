@@ -152,11 +152,11 @@ function wplead_gravatar_metabox() {
 		$final_date2 = $date2->format('Y-m-d G:i:s');
 
 		$date_obj = leads_time_diff($lead_creation, $final_date2);
-
+		$wordpress_timezone = get_option('gmt_offset');
 		$years = $date_obj['years'];
 		$months = $date_obj['months'];
 		$days = $date_obj['days'];
-		$hours = $date_obj['hours'];
+		$hours = $date_obj['hours'] + $wordpress_timezone;
 		$minutes = $date_obj['minutes'];
 		$year_text = $date_obj['y-text'];
 		$month_text = $date_obj['m-text'];
@@ -170,12 +170,7 @@ function wplead_gravatar_metabox() {
 		$conversions_count = get_post_meta($post->ID,'wpl-lead-conversion-count', true);
 		$page_view_count = get_post_meta($post->ID,'wpl-lead-page-view-count', true);
 	?>
-	<div >
-		<script type="text/javascript">
-		jQuery(document).ready(function() {
-		  var timesince = jQuery("#session-time-since").first().html();
-		  jQuery(".timeago").html(timesince);
-		});</script>
+	<div>
 		<div class="inside" style='margin-left:-8px;text-align:center;'> 
 			<div id="quick-stats-box">
 			<div id="page_view_total">Total Page Views <span id="p-view-total"><?php echo $page_view_count; ?></span></div>
@@ -474,6 +469,8 @@ function wpleads_display_metabox_main() {
 			
 
 			//first add to varation list if not present.
+			$conversions_data = get_post_meta($post->ID,'wpleads_conversion_data', true);
+			$times = get_post_meta($post->ID,'times', true);
 			$conversions = get_post_meta($post->ID,'wpl-lead-conversions', true);
 			$conversions_count = get_post_meta($post->ID,'wpl-lead-conversion-count', true);
 			$page_view_count = get_post_meta($post->ID,'wpl-lead-page-view-count', true);
@@ -481,26 +478,29 @@ function wpleads_display_metabox_main() {
 			$raw = get_post_meta($post->ID,'wpleads_conversion_data', true);
 			//echo "count" . $page_view_count;
 			//echo $raw2;
-			if ($conversions)
-			{
-				echo "<h2>Recent Conversions</h2>";
-				$conversions = explode(',',$conversions);
-				//print_r($conversions);
-				echo "<div id='recent-conversions-list'>";
-				$num = 1;
-				foreach($conversions as  $key=>$val)
+			//print_r($conversions_data);
+			$the_array = json_decode($conversions_data, true);
+			// echo "First id : ". $the_array[1]['id'] . "!"; // Get specific value
+			if ($conversions_data) {
+			$count = 1;
+			foreach($the_array as  $key=>$val)
 				{
-					$title = get_the_title($val);
-					$display_location = get_permalink($val);
-					echo "<div class='recent-conversion-item'>".$num.". <a href='{$display_location}' id='lead-session-".$num."' rel='".$num."' target='_blank'>{$title}</a><span class='conversion-date'></span><span class='view-this-lead-session' rel='".$num."'> <a rel='".$num."' href='#view-session-".$num."'>(view visit path)</a></span></div>";
-					$num++;
+					$id = $the_array[$count]['id'];
+					$title = get_the_title($id);
+					$display_location = get_permalink($id);
+					$date_raw = new DateTime($the_array[$count]['datetime']);
+					//date_format($date, 'F jS, Y \a\t g:ia (l)')
+					$date_of_conversion = $date_raw->format('F jS, Y \a\t g:ia (l)');
+					//echo $count . ": ". $the_array[$count]['datetime'] . "!<br>";
+					echo "<div class='recent-conversion-item'>".$count.". <a href='{$display_location}' id='lead-session-".$count."' rel='".$count."' target='_blank'>{$title}</a><span class='conversion-date'>".$date_of_conversion."</span><span class='view-this-lead-session' rel='".$count."'> <a rel='".$count."' href='#view-session-".$count."'>(view visit path)</a></span></div>";
+						foreach ($val as $key => $value) {
+							//echo $key . "=" . $value;
+						}
+					$count++;
 				}
-				echo "</div>";
-			}
-			else
-			{					
-				echo "<span id='wpl-message-none'>No conversions found!</span>";			
-			}
+			} else {
+				echo "<span id='wpl-message-none'>No conversions found!</span>";
+			}	
 		
 			?>
 			
@@ -718,6 +718,7 @@ function wpleads_display_metabox_conversion() {
 		$minute_text = $date_obj['mm-text']; 
 		$data = $data['items'];
 		//print_r($data);exit;
+	 
 		echo '<a class="session-anchor" id="view-session-'.$num_conversion.'""></a><div id="conversion-tracking" class="wpleads-conversion-tracking-table" summary="Conversion Tracking">
 			
 			<div class="conversion-tracking-header">

@@ -218,14 +218,15 @@ if (is_admin())
 	function wpleads_add_user_edit_button($item)
 	{
 		$image = WPL_URL.'/images/icons/edit_user.png';
-		echo '&nbsp;&nbsp;<a href="'.get_admin_url().'post.php?post='.$item['ID'].'&action=edit" target="_blank"><img src="'.$image.'" title="Edit User"></a>';
+		echo '&nbsp;&nbsp;<a href="'.get_admin_url().'post.php?post='.$item['ID'].'&action=edit" target="_blank"><img src="'.$image.'" title="Edit Lead"></a>';
 	}
 	
 	add_action('lp_module_lead_splash_post','wpleads_add_user_conversion_data_to_splash');
 	function wpleads_add_user_conversion_data_to_splash($data)
 	{
 		$conversion_data = $data['lead_custom_fields']['wpleads_conversion_data'];
-
+		//$test = get_post_meta($data['lead_id'],'wpl-lead-conversions', true);
+		//print_r($test);
 		echo "<h3  class='lp-lead-splash-h3'>Recent Conversions:</h3>"; 
 		echo "<table>";
 		echo "<tr>";

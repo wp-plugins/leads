@@ -95,8 +95,8 @@ function wpl_store_lead_callback()
 			{
 				$conversion_data = get_post_meta( $post_ID, 'wpleads_conversion_data', TRUE );
 				$conversion_data = json_decode($conversion_data,true);
-				$conversion_data[$lp_id]['id'] = $lp_id;
-				$conversion_data[$lp_id]['datetime'] = $wordpress_date_time;
+				$conversion_data[$meta]['id'] = $lp_id;
+				$conversion_data[$meta]['datetime'] = $wordpress_date_time;
 				$conversion_data = json_encode($conversion_data);
 			}
 			
@@ -132,13 +132,14 @@ function wpl_store_lead_callback()
 			
 			if ($lp_id)
 			{			
-				$conversion_data[$lp_id]['id'] = $lp_id;
-				$conversion_data[$lp_id]['datetime'] = $wordpress_date_time;
-				$conversion_data[$lp_id]['first_time'] = 1;					
+				$conversion_data[1]['id'] = $lp_id;
+				$conversion_data[1]['datetime'] = $wordpress_date_time;
+				$conversion_data[1]['first_time'] = 1;					
 				$conversion_data = json_encode($conversion_data);
 			}
 			
 			$post_ID = wp_insert_post($post);
+			update_post_meta( $post_ID, 'times', 1 );
 			update_post_meta( $post_ID, 'wpleads_wordpress_user_id', $user_ID );
 			update_post_meta( $post_ID, 'wpleads_email_address', $title );
 			update_post_meta( $post_ID, 'wpleads_first_name', $first_name);
