@@ -38,7 +38,7 @@ function wpleads_activate()
 		$sql = "CREATE TABLE IF NOT EXISTS {$wpdb->prefix}lead_tracking (
 				id INT(40) NOT NULL AUTO_INCREMENT PRIMARY KEY,
 				lead_id INT(40) NOT NULL,
-				tracking_id INT(40) NOT NULL,
+				tracking_id VARCHAR(40) NOT NULL,
 				date DATETIME NOT NULL,
 				data TEXT NULL,
 				nature VARCHAR(25) NOT NULL
@@ -47,10 +47,10 @@ function wpleads_activate()
 		$result = mysql_query($sql);
 		
 		if (!$result){ echo $sql; echo mysql_error(); exit; }
-				
-		$result = mysql_query($sql);
-		
-		if (!$result){ echo $sql; echo mysql_error(); exit; }
+
+		$sql = "ALTER TABLE `{$wpdb->prefix}lead_tracking`	CHANGE `tracking_id` `tracking_id` varchar(40)";
+		$result = mysql_query($sql);		
+		//if (!$result){ echo $sql; echo mysql_error(); exit; }
 	}		
 
 }
