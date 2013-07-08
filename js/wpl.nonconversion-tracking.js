@@ -1,12 +1,6 @@
 	
 jQuery(document).ready(function($) {
 	//alert(wplnct.admin_url);
-	// Unique WP Lead ID
-	var wp_lead_uid_val =  generate_wp_leads_uid(35);
-
-	if(jQuery.cookie("wp_lead_uid") === null) { 
-		jQuery.cookie("wp_lead_uid", wp_lead_uid_val, { path: '/', expires: 365 });
-	}
 	
 	//record non conversion status
 	var wp_lead_uid = jQuery.cookie("wp_lead_uid");	

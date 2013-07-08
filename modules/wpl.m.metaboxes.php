@@ -476,6 +476,10 @@ function wpleads_display_metabox_main() {
 			$page_view_count = get_post_meta($post->ID,'wpl-lead-page-view-count', true);
 			$raw2 =get_post_meta($post->ID,'wpl-lead-conversions', true);
 			$raw = get_post_meta($post->ID,'wpleads_conversion_data', true);
+			$events = get_post_meta($post->ID,'tracking_event', true);
+			$events_triggered = get_post_meta( $post->ID, 'events_triggered', TRUE );
+			//echo $events_triggered;
+			//echo $raw;
 			//echo "count" . $page_view_count;
 			//echo $raw2;
 			//print_r($conversions_data);
