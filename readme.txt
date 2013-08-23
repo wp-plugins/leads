@@ -63,7 +63,7 @@ We built Lead Management as a framework! You can use our extendable framework to
 
 == Changelog ==
 
-= 1.0.0.3 =
+= 1.0.0.4 =
 * Fix for manually adding new leads
 
 = 1.0.0.2 =
