@@ -14,7 +14,7 @@
 
 	if (form.length>0)
 	{
-		//alert('hi');
+
 		form.submit(function(e) { 
 			form_id = jQuery(this).attr('id');
 			this_form = jQuery(this);
@@ -33,18 +33,19 @@
 			var email = "";
 			var firstname = "";
 			var lastname = "";			
-			var json = JSON.stringify(data_block);
-			var page_view_count = jQuery(data_block.items).length;
+			var json = JSON.stringify(trackObj);
+			var page_view_count = jQuery(trackObj.items).length;
 			submit_halt = 1;
 
-			//alert('1');
 			if (!email)
 			{
-				 jQuery(".wpl-track-me input[type=text]").each(function() {
+
+				 jQuery(".wpl-track-me").find('input[type=text],input[type=email]').each(function() {
 					if (this.value)
 					{
 						if (jQuery(this).attr("name").toLowerCase().indexOf('email')>-1) {
 							email = this.value;
+							
 						}
 						else if(jQuery(this).attr("name").toLowerCase().indexOf('name')>-1&&!firstname) {
 							 firstname = this.value;
@@ -65,7 +66,7 @@
 
 			if (!email)
 			{
-				jQuery(".wpl-track-me input[type=text]").each(function() {
+				jQuery(".wpl-track-me").find('input[type=text],input[type=email]').each(function() {
 					if (jQuery(this).closest('li').children('label').length>0)
 					{
 						if (jQuery(this).closest('li').children('label').html().toLowerCase().indexOf('email')>-1) 
@@ -84,7 +85,7 @@
 
 			if (!email)
 			{
-				jQuery(".wpl-track-me input[type=text]").each(function() {
+				jQuery(".wpl-track-me").find('input[type=text],input[type=email]').each(function() {
 					if (jQuery(this).closest('div').children('label').length>0)
 					{
 						if (jQuery(this).closest('div').children('label').html().toLowerCase().indexOf('email')>-1) 
@@ -117,6 +118,8 @@
 			});	
 			var post_values_json = JSON.stringify(post_values);
 			var wp_lead_uid = jQuery.cookie("wp_lead_uid");	
+			var page_views = JSON.stringify(pageviewObj);
+			
 			jQuery.ajax({
 				type: 'POST',
 				url: '<?php echo admin_url('admin-ajax.php') ?>',
@@ -127,6 +130,7 @@
 					last_name: lastname,
 					wp_lead_uid: wp_lead_uid,
 					page_view_count: page_view_count,
+					page_views: page_views,
 					json: json,
 					nature: 'conversion',
 					raw_post_values_json : post_values_json,
@@ -136,6 +140,7 @@
 				},
 				success: function(user_id){
 						jQuery.cookie("wp_lead_id", user_id, { path: '/', expires: 365 });
+						jQuery.totalStorage('wp_lead_id', user_id); 
 						if (form_id)
 						{
 							jQuery('form').unbind('submit');
@@ -147,6 +152,9 @@
 							this_form.unbind('submit');
 							this_form.submit();
 						}
+						jQuery.totalStorage.deleteItem('page_views'); // remove pageviews
+						jQuery.totalStorage.deleteItem('tracking_events'); // remove events
+						//jQuery.totalStorage.deleteItem('cta_clicks'); // remove cta
 					   },
 				error: function(MLHttpRequest, textStatus, errorThrown){
 						//alert(MLHttpRequest+' '+errorThrown+' '+textStatus);

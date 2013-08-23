@@ -1,5 +1,24 @@
 <?php
 
+// Add to the admin_init hook of your theme functions.php file 
+add_action( 'admin_init', 'wp_leads_add_cats_and_tags' );
+function wp_leads_add_cats_and_tags() {  
+	// Add tag metabox to page
+	register_taxonomy_for_object_type('post_tag', 'page'); 
+	// Add category metabox to page
+	register_taxonomy_for_object_type('category', 'page');  
+}
+
+/* Actions */
+//add_action('wpleads_after_quickstats', 'wpleads_after_quick_stats_callback');
+//add_action('wpleads_before_quickstats', 'wpleads_before_quick_stats_callback');
+//add_action('wpleads_before_main_fields', 'wpleads_before_main_fields_callback');
+//add_action('wpleads_after_main_fields', 'wpleads_after_main_fields_callback');
+function wpleads_before_quick_stats_callback()
+{
+// echo 'hi';
+}
+
 function wpleads_remote_connect($url)
 {
 	$method1 = ini_get('allow_url_fopen') ? "Enabled" : "Disabled";
@@ -45,32 +64,36 @@ function wpleads_check_url_for_queries($referrer)
 	return false;
 }
 
+function wp_leads_sort_fields($a,$b){
+        return $a['priority'] > $b['priority']?1:-1;
+};
+
 function wpleads_render_setting($fields)
 {
 	//print_r($fields);
-	
+	uasort($fields,'wp_leads_sort_fields');
 	echo "<table id='wpleads_main_container'>"; 
 	
 	foreach ($fields as $field)
 	{	
-		$id = strtolower($field['name']);
+		$id = strtolower($field['key']);
 		echo '<tr class="'.$id.'">
 			<th class="wpleads-th" ><label for="'.$id.'">'.__( $field['label'],'wpleads').':</label></th>
 			<td class="wpleads-td" id="wpleads-td-'.$id.'">';
 		switch(true) {					
-			case strstr($field['nature'],'textarea'):
-				$parts = explode('-',$field['nature']);				
+			case strstr($field['type'],'textarea'):
+				$parts = explode('-',$field['type']);				
 				(isset($parts[1])) ? $rows= $parts[1] : $rows = '10';
 				echo '<textarea name="'.$id.'" id="'.$id.'" rows='.$rows.'" style="width:99%" >'.$field['value'].'</textarea>';
 				break;
-			case strstr($field['nature'],'text'):
-				$parts = explode('-',$field['nature']);				
+			case strstr($field['type'],'text'):
+				$parts = explode('-',$field['type']);				
 				(isset($parts[1])) ? $size = $parts[1] : $size = 35;
 				
 				echo '<input type="text" name="'.$id.'" id="'.$id.'" value="'.$field['value'].'" size="'.$size.'" />';
 				break;			
-			case strstr($field['nature'],'links'):
-				$parts = explode('-',$field['nature']);
+			case strstr($field['type'],'links'):
+				$parts = explode('-',$field['type']);
 				(isset($parts[1])) ? $channel= $parts[1] : $channel = 'related';
 				$links = explode(';',$field['value']);
 				$links = array_filter($links);
@@ -99,12 +122,12 @@ function wpleads_render_setting($fields)
 				echo '</div>';
 				break;
 			// wysiwyg
-			case strstr($field['nature'],'wysiwyg'):
+			case strstr($field['type'],'wysiwyg'):
 				wp_editor( $field['value'], $id, $settings = array() );
 				echo	'<p class="description">'.$field['desc'].'</p>';							
 				break;
 			// media					
-			case strstr($field['nature'],'media'):
+			case strstr($field['type'],'media'):
 				//echo 1; exit;
 				echo '<label for="upload_image">';
 				echo '<input name="'.$id.'"  id="'.$id.'" type="text" size="36" name="upload_image" value="'.$field['value'].'" />';
@@ -112,7 +135,7 @@ function wpleads_render_setting($fields)
 				echo '<p class="description">'.$field['desc'].'</p>'; 
 				break;
 			// checkbox
-			case strstr($field['nature'],'checkbox'):
+			case strstr($field['type'],'checkbox'):
 				$i = 1;
 				echo "<table class='wpl_check_box_table'>";						
 				if (!isset($field['value'])){$field['value']=array();}
@@ -137,7 +160,7 @@ function wpleads_render_setting($fields)
 				echo '<div class="wpl_tooltip tool_checkbox" title="'.$field['desc'].'"></div>';
 				break;
 			// radio
-			case strstr($field['nature'],'radio'):
+			case strstr($field['type'],'radio'):
 				foreach ($field['options'] as $value=>$field['label']) {
 					//echo $field['value'].":".$id;
 					//echo "<br>"; 
@@ -147,14 +170,14 @@ function wpleads_render_setting($fields)
 				echo '<div class="wpl_tooltip" title="'.$field['desc'].'"></div>';
 				break;
 			// select
-			case $field['nature'] == 'dropdown':
+			case $field['type'] == 'dropdown':
 				echo '<select name="'.$id.'" id="'.$id.'" >';
 				foreach ($field['options'] as $value=>$field['label']) {
 					echo '<option', $field['value'] == $value ? ' selected="selected"' : '', ' value="'.$value.'">'.$field['label'].'</option>';
 				}
 				echo '</select><div class="wpl_tooltip" title="'.$field['desc'].'"></div>';
 				break;
-			case $field['nature']=='dropdown-country':
+			case $field['type']=='dropdown-country':
 				echo '<input type="hidden" id="hidden-country-value" value="'.$field['value'].'">';
 				echo '<select name="'.$id.'" id="'.$id.'" class="wpleads-country-dropdown">';
 					?>
@@ -411,6 +434,7 @@ function wpleads_render_setting($fields)
 		} //end switch
 		echo '</td></tr>';
 	}	
+	
 	echo '</table>';
 	
 }
@@ -609,7 +633,7 @@ function wpleads_render_global_settings($key,$custom_fields,$active_tab)
 						break;	
 					case 'text':
 						echo '<input type="text" name="'.$field['id'].'" id="'.$field['id'].'" value="'.$option.'" size="30" />
-								<div  title="'.$field['desc'].'">'.$field['desc'].'</div>';
+								<div class="wpl_tooltip tool_text"  title="'.$field['desc'].'"></div>';
 						break;
 					// textarea
 					case 'textarea':
@@ -680,3 +704,22 @@ function wpleads_render_global_settings($key,$custom_fields,$active_tab)
 	} // end foreach
 	echo '</table>'; // end table
 }
+
+function wpleads_count_associated_lead_items($post_id)
+{
+	global $wpdb;
+	$list = get_post($post_id);
+	$list_slug = $list->post_name;
+	
+	$args = array(
+		'post_type' => 'wp-lead',
+		'post_status' => 'published',
+		'wplead_list_category' => $list_slug,
+		'numberposts' => -1
+	);
+	
+	$num = count( get_posts( $args ) );
+	
+	return "$num leads";
+}
+

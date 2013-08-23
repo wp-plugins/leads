@@ -4,36 +4,19 @@ Plugin Name: WordPress Leads
 Plugin URI: http://www.inboundnow.com/landing-pages/downloads/lead-management/
 Description: Wordpress Lead Manager provides CRM (Customer Relationship Management) applications for WordPress Landing Page plugin. Lead Manager Plugin provides a record management interface for viewing, editing, and exporting lead data collected by Landing Page Plugin. 
 Author: Hudson Atwell(@atwellpub), David Wells (@inboundnow)
-Version: 1.0.0.2
+Version: 1.0.0.3
 Author URI: http://www.inboundnow.com/landing-pages/
 */
 
+define('WPL_URL', WP_PLUGIN_URL."/".dirname( plugin_basename( __FILE__ ) ) );
+define('WPL_PATH', WP_PLUGIN_DIR."/".dirname( plugin_basename( __FILE__ ) ) );
+define('WPL_CORE', plugin_basename( __FILE__ ) );
 
-
-$lead_manager_license_status = get_option('lp_license_status-lead-manager');
-
-if ($lead_manager_license_status=='valid'||$debug=1)
-{
-	define('WPL_URL', WP_PLUGIN_URL."/".dirname( plugin_basename( __FILE__ ) ) );
-	define('WPL_PATH', WP_PLUGIN_DIR."/".dirname( plugin_basename( __FILE__ ) ) );
-	define('WPL_CORE', plugin_basename( __FILE__ ) );
-	
-	include_once('modules/wpl.m.post-type.php'); 
-	include_once('modules/wpl.m.ajax-setup.php'); 
-	include_once('modules/wpl.m.form-integrations.php'); 
-	include_once('functions/wpl.f.global.php'); 
-	
-}
-else
-{
-	function wpleads_admin_notice() 
-	{
-		_e('<div class="updated">
-			   <p><b>Lead Manager Extension</b> requires license activation! Please head to <a href="'.admin_url().'edit.php?post_type=landing-page&page=lp_global_settings&tab=lp-license-keys">\'Landing Pages -> Global Settings -> License Keys\' to activate your copy!</a> </p>
-			</div>','wpleads');
-	}
-	add_action('admin_notices', 'wpleads_admin_notice');
-}
+include_once('modules/wpl.m.post-type.wp-lead.php'); 
+include_once('modules/wpl.m.post-type.list.php'); 
+include_once('modules/wpl.m.ajax-setup.php'); 
+include_once('modules/wpl.m.form-integrations.php'); 
+include_once('functions/wpl.f.global.php'); 
 
 if (is_admin()) 
 {
@@ -44,51 +27,116 @@ if (is_admin())
 	$lp_global_settings[$tab_slug]['label'] = 'License Keys';	
 	
 	$lp_global_settings[$tab_slug]['options'][] = lp_add_option($tab_slug,"license-key","lead-manager","","Lead Manager","Head to http://www.inboundnow.com/landing-pages/account/ to retrieve your license key for Lead Manager for Landing Pages", $options=null);
-	
-	
-	$edd_updater = new LP_EXTENSION_UPDATER( LANDINGPAGES_STORE_URL, __FILE__, array( 
-		'version' 	=> '1.0.1.1', 				// current version number
-		'license' 	=> trim(get_option( 'lp-license-keys-lead-manager' )), // license key (used get_option above to retrieve from DB)
-		'item_name' => 'lead-manager',	// permalink name of this plugin on inboundnow.com/landing-pages/ store.
-		'nature' 	=> 'extension'  // nature of update request
-	));
+
 	/*SETUP END*/
 	
 	register_activation_hook(__FILE__, 'wpleads_activate');
 	include_once('modules/wpl.m.activate.php'); 
-	include_once('modules/wpl.m.metaboxes.php'); 
+	include_once('modules/wpl.m.metaboxes.wp-lead.php'); 
+	include_once('modules/wpl.m.metaboxes.list.php');   
 	include_once('functions/wpl.f.admin.php'); 	
 	include_once('modules/wpl.m.global-settings.php'); 
+	include_once('modules/wpl.m.dashboard.php');
 	
 	
 }
+// Needs optimization
+add_action('wp_head', 'wp_leads_get_page_final_id');
+function wp_leads_get_page_final_id(){
+		$current_url = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		$current_url = preg_replace('/\?.*/', '', $current_url);
+		
+		$page_id = wpl_url_to_postid($current_url);
 
+		$site_url = get_option('siteurl');
+		$clean_current_url = rtrim($current_url,"/");
+
+		// If homepage
+		if($clean_current_url === $site_url){
+			$page_id = get_option('page_on_front'); // 
+		}
+
+		// If category page
+		if (is_category() || is_archive()) {
+		$cat = get_category_by_path(get_query_var('category_name'),false);
+			$page_id = "cat_" . $cat->cat_ID;
+			//$current_name = $cat->cat_name;
+			$post_type = "category";
+			}
+		if (is_tag()){
+			$page_id = "tag_" . get_query_var('tag_id');
+		}
+			
+		if(is_home()) { $page_id = get_option( 'page_for_posts' ); }
+
+		elseif(is_front_page()){ $page_id = get_option('page_on_front'); }
+
+		if ($page_id === 0) {
+			$page_id = $post->ID;
+		}
+
+		return $page_id;
+}
 
 add_action('wp_enqueue_scripts', 'wpleads_enqueuescripts_header');
 function wpleads_enqueuescripts_header()
 {
+	global $post;
+	$post_type = get_post_type( $post );
 	$current_page = "http://".$_SERVER["HTTP_HOST"].$_SERVER["REQUEST_URI"];
 	$post_id = wpl_url_to_postid($current_page);
+	
 	(isset($_SERVER['HTTP_REFERER'])) ? $referrer = $_SERVER['HTTP_REFERER'] : $referrer ='direct access';	
 	(isset($_SERVER['REMOTE_ADDR'])) ? $ip_address = $_SERVER['REMOTE_ADDR'] : $ip_address = '0.0.0.0.0';
+    $lead_cpt_id = (isset($_COOKIE['wp_lead_id'])) ? $_COOKIE['wp_lead_id'] : false;
+    $lead_email = (isset($_COOKIE['wp_lead_email'])) ? $_COOKIE['wp_lead_email'] : false;
+    $lead_unique_key = (isset($_COOKIE['wp_lead_uid'])) ? $_COOKIE['wp_lead_uid'] : false;
+	    $lead_data_array = array();
+		if ($lead_cpt_id) {
+			$lead_data_array['lead_id'] = $lead_cpt_id;
+			$type = 'wplid';}
+		if ($lead_email) {
+			$lead_data_array['lead_email'] = $lead_email;
+			$type = 'wplemail';}
+		if ($lead_unique_key) {
+	    	$lead_data_array['lead_uid'] = $lead_unique_key;
+			$type = 'wpluid'; 
+		}
+	//print_r($lead_data_array);
 	
-	wp_enqueue_script('jquery');
-	wp_enqueue_script('jquery-cookie', WPL_URL . '/js/jquery.cookie.js', array( 'jquery' ));
-	
-	wp_register_script('jquery-total-storage',WPL_URL . '/js/jquery.total-storage.min.js', array( 'jquery' ));
+	// Load Tracking Scripts
+	if($post_type != "wp-call-to-action") {
+		wp_enqueue_script('jquery');
+		wp_enqueue_script('jquery-cookie', WPL_URL . '/js/jquery.cookie.js', array( 'jquery' ));
+		wp_register_script('jquery-total-storage',WPL_URL . '/js/jquery.total-storage.min.js', array( 'jquery' ));
 		wp_enqueue_script('jquery-total-storage');
+		wp_enqueue_script( 'funnel-tracking' , WPL_URL . '/js/wpl.funnel-tracking.js', array( 'jquery','jquery-cookie'));
+		wp_localize_script( 'funnel-tracking' , 'wplft', array( 'post_id' => $post_id, 'ip_address' => $ip_address, 'wp_lead_data' => $lead_data_array));
 
-	wp_enqueue_script( 'funnel-tracking' , WPL_URL . '/js/wpl.funnel-tracking.js', array( 'jquery','jquery-cookie'));
-	wp_enqueue_script( 'wpl-nonconversion-tracking' , WPL_URL . '/js/wpl.nonconversion-tracking.js', array( 'jquery','jquery-cookie','funnel-tracking'));
-	wp_localize_script( 'wpl-nonconversion-tracking' , 'wplnct', array( 'admin_url' => admin_url( 'admin-ajax.php' ) ));
-	wp_enqueue_script('form-population', WPL_URL . '/js/wpl.form-population.js', array( 'jquery','jquery-cookie'));	
-	
-	$form_ids = get_option( 'wpl-main-tracking-ids' , 1);
-	
-	if ($form_ids)
-	{
-		wp_enqueue_script('wpl-assign-class', WPL_URL . '/js/wpl.assign-class.js', array( 'jquery'));	
-		wp_localize_script( 'wpl-assign-class', 'wpleads', array( 'form_ids' => $form_ids ) );
+		// Load Lead Page View Tracking
+		$lead_page_view_tracking = get_option( 'page-view-tracking' , 1);
+		if ($lead_page_view_tracking)
+		{	
+			$final_page_id = wp_leads_get_page_final_id();
+			wp_enqueue_script( 'wpl-nonconversion-tracking' , WPL_URL . '/js/wpl.nonconversion-tracking.js', array( 'jquery','jquery-cookie','funnel-tracking'));
+			wp_localize_script( 'wpl-nonconversion-tracking' , 'wplnct', array( 'admin_url' => admin_url( 'admin-ajax.php' ), 'final_page_id' => $final_page_id  ));
+		}
+
+		// Load form pre-population
+		$form_prepopulation = get_option( 'form-prepopulation' , 1);
+		if ($form_prepopulation)
+		{
+			wp_enqueue_script('form-population', WPL_URL . '/js/wpl.form-population.js', array( 'jquery','jquery-cookie'));	
+		}
+		
+		$form_ids = get_option( 'wpl-main-tracking-ids' , 1);
+		
+		if ($form_ids)
+		{
+			wp_enqueue_script('wpl-assign-class', WPL_URL . '/js/wpl.assign-class.js', array( 'jquery'));	
+			wp_localize_script( 'wpl-assign-class', 'wpleads', array( 'form_ids' => $form_ids ) );
+		}
+
 	}
 }
 
@@ -96,7 +144,9 @@ add_action('admin_enqueue_scripts', 'wpleads_admin_enqueuescripts');
 function wpleads_admin_enqueuescripts($hook)
 {
 	global $post;
-
+	
+	if (isset($_GET['taxonomy']))
+		return;
 
 	if ((isset($_GET['post_type'])&&$_GET['post_type']=='wp-lead')||(isset($post->post_type)&&$post->post_type=='wp-lead'))
 	{
@@ -104,6 +154,8 @@ function wpleads_admin_enqueuescripts($hook)
 		if ( $hook == 'post.php' ) 
 		{
 			wp_enqueue_script('wpleads-edit', WPL_URL.'/js/wpl.admin.edit.js', array('jquery'));
+			wp_enqueue_script('tinysort', WPL_URL.'/js/jquery.tinysort.js', array('jquery'));
+			wp_enqueue_script('tag-cloud', WPL_URL.'/js/jquery.tagcloud.js', array('jquery'));
 			wp_localize_script( 'wpleads-edit', 'wp_lead_map', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'wp_lead_map_nonce' => wp_create_nonce('wp-lead-map-nonce') ) );
 		}
 		
@@ -111,6 +163,7 @@ function wpleads_admin_enqueuescripts($hook)
 		//Tool tip js
 		wp_enqueue_script('jquery-qtip', WPL_URL . '/js/jquery-qtip/jquery.qtip.min.js');
 		wp_enqueue_script('wpl-load-qtip', WPL_URL . '/js/jquery-qtip/load.qtip.js');
+		wp_enqueue_style('qtip-css', WPL_URL . '/css/jquery.qtip.min.css'); //Tool tip css
 		wp_enqueue_style('wpleads-admin-css', WPL_URL.'/css/wpl.admin.css');
 		
 				
@@ -122,8 +175,18 @@ function wpleads_admin_enqueuescripts($hook)
 		
 		if ( $hook == 'post-new.php' ) 
 		{
-				wp_enqueue_script('wpleads-create-new-lander', WPL_URL . '/js/wpl.add-new.js');
+			wp_enqueue_script('wpleads-create-new-lead', WPL_URL . '/js/wpl.add-new.js');
 		}		
+
+			
+		
+	
+	}
+	
+	if ((isset($_GET['post_type'])&&$_GET['post_type']=='list')||(isset($post->post_type)&&$post->post_type=='list'))
+	{	
+		wp_enqueue_style('wpleads-list-css', WPL_URL.'/css/wpl.leads-list.css');
+		wp_enqueue_script('lls-edit-list-cpt', WPL_URL . '/js/wpl.admin.cpt.list.js');
 	}
 }
 
@@ -144,9 +207,25 @@ if (!@function_exists('lp_check_active'))
 }
 else
 {
-	//echo 2; exit;
 	//add additional tracking into Landing Pages
-	add_action( 'lp_store_lead_post', 'wpleads_hook_store_lead_post' );	
+	add_action( 'lp_store_lead_post', 'wpleads_hook_store_lead_post' );
+	add_action( 'wpl_store_lead_post', 'wpleads_hook_store_lead_post' );
+	
+	//add tracking for non lp pages		
+	add_action('wp_footer','wpl_register_ajax');
+	function wpl_register_ajax() 
+	{
+		$url  = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		$current_url = trim($url);
+		$page_id = wpl_url_to_postid( $current_url );
+		$post_type = get_post_type($page_id);
+
+		if ($post_type!='landing-page')
+		{
+			include_once(WPL_PATH . '/js/wpl.leads-tracking.js.php');
+		}
+		
+	}
 	
 	add_action( 'lp-lead-collection-add-js-pre', 'wpleads_hook_js_pre' );
 	function wpleads_hook_js_pre()
@@ -158,7 +237,7 @@ else
 			var email;
 			var firstname;
 			var lastname;
-			var json = JSON.stringify(data_block);
+			var json = JSON.stringify(trackObj);
 			
 			//alert(json);
 		";
@@ -174,28 +253,67 @@ else
 	}
 }
 
-// Enable some developer options on the front-end for testing and debugging purposes
-add_action( 'get_header', 'wp_leads_dev_debug_mode' );
-function wp_leads_dev_debug_mode() {
+function wpleads_set_lead_id($lead_id){
+	global $wpdb;
+		$query = $wpdb->prepare(
+				'SELECT ID FROM ' . $wpdb->posts . '
+				WHERE post_title = %s
+				AND post_type = \'wp-lead\'',
+				$lead_id
+				);
+				$wpdb->query( $query );
+				if ( $wpdb->num_rows ) {
+					$lead_ID = $wpdb->get_var( $query );
+					setcookie('wp_lead_id' , $lead_ID, time() + (20 * 365 * 24 * 60 * 60),'/');	
+				}	
+}
 
-	// Only proceed if URL querystring cotnains "devmode=true"
-	if ( isset($_GET['devmode']) && 'true' == $_GET['devmode'] ) {
+add_action( 'wp_head', 'wpleads_set_lead' );
+function wpleads_set_lead() {
+	if (isset($_GET['wpl_email'])) {
+		$lead_id = $_GET['wpl_email'];
+		wpleads_set_lead_id($lead_id);
+	}	
+}
 
-		// Output visitor sessions history if URL querystring contains 'show=session'
-		if ( isset($_GET['show']) && 'session' == $_GET['show'] )
-			// Print out sessions data
+// DOESNT RUN UNLESS USER LOGGED IN =/
+//add_action( 'wp_head', 'wp_leads_update_lead_page_views' );
+function wp_leads_update_lead_page_views() {
+global $wp; global $post;
 
-		// Output current wp-lead cookie contents if URL querystring contains 'show=cookies'
-		if ( isset($_GET['show']) && 'cookies' == $_GET['show'] )
-			// Print out cookies
+$post_type = get_post_type( $post );
 
-		// Clear Session History and dump us back at the homepage if URL querystring contains 'session-clear=reset'
-		if ( isset($_GET['session-clear']) && 'reset' == $_GET['session-clear'] ) {
-			// unset( $_SESSION['user_history'] );
-			wp_redirect( site_url() );
-			exit;
+// Only proceed if lead exists
+	if ( isset($_COOKIE['wp_lead_id']) && !is_admin() && !is_404() && $post_type != "wp-call-to-action") 
+	{
+
+		/*
+		//Revisit notication base
+		// revisit cookie 2 hour timeout
+		// add action and rename this parent function
+		//http://www.flippercode.com/send-html-emails-using-wp-mail-wordpress
+		add_filter( 'wp_mail_from', 'wp_leads_mail_from' );
+		function wp_leads_mail_from( $email )
+		{
+		    return 'david@inboundnow.com';
 		}
+		add_filter( 'wp_mail_from_name', 'wp_leads_mail_from_name' );
+		function wp_leads_mail_from_name( $name )
+		{
+		    return 'David';
+		}
+		if (!isset($_GET['cta'])) {
+		$to = 'david@inboundnow.com';
+		$subject = 'Hello from my blog!';
+		$message = 'Check it out -- my blog is emailing you!';
 
+		$mail = wp_mail($to, $subject, $message);
+
+		if($mail) echo 'Your message has been sent!';
+		else echo 'There was a problem sending your message. Please try again.';
+		}
+		*/
+		
 	}
 
 }
@@ -210,8 +328,9 @@ if (is_admin())
 	{
 		//echo 1; exit;
 		if (current_user_can('manage_options'))
-		{			
-			add_submenu_page('edit.php?post_type=wp-lead', 'Global Settings', 'Global Settings', 'manage_options', 'wpleads_global_settings','wpleads_display_global_settings');
+		{	
+		
+			add_submenu_page('edit.php?post_type=wp-lead', 'Settings', 'Settings', 'manage_options', 'wpleads_global_settings','wpleads_display_global_settings');
 			
 		}
 	}

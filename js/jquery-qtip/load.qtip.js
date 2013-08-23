@@ -1,4 +1,4 @@
-jQuery('.wpl_tooltip').live('mouseover', function(event) {
+jQuery(document).on('mouseover', '.wpl_tooltip', function(event) {
 	// Bind the qTip within the event handler
 	jQuery(this).qtip({
 		overwrite: false, // Make sure the tooltip won't be overridden once created

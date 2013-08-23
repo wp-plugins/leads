@@ -75,7 +75,25 @@ jQuery(document).ready(function($) {
 		jQuery(this).find(".mark-viewed").hide();
 			jQuery(this).find(".mark-viewed-undo").text("Mark as new").show();
 		   }
-		  }); 
+		  });
+		//var move_box = jQuery(".alignleft.actions").first();
+		//jQuery(".subsubsub").before(move_box);
+
+		//var filter_box = "<span class='left-float-filter'>Filter</span>";
+		//jQuery(".alignleft.actions").eq(1).before(filter_box);
+
+		var meta_filter = jQuery('#lead-meta-filter').val();
+		if(meta_filter != "") {
+			jQuery(".lead_meta_val").show();
+		}
+		jQuery("body").on('change', '#lead-meta-filter', function () {
+			var meta = jQuery('#lead-meta-filter').val();
+			if(meta === "") {
+			jQuery(".lead_meta_val").hide();
+			} else {
+			jQuery(".lead_meta_val").show();
+			}
+		});   
 
 		$( '.mark-viewed' ).on( 'click', function() {
 

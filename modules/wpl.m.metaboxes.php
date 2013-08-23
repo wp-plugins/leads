@@ -574,7 +574,7 @@ function wpleads_display_metabox_main() {
 		</div>
 		
 		<?php
-		do_action('wpl_print_lead_tab_sections');
+		do_action('wpl_print_lead_tab_sections', $active_tab);
 		?>
 		
 		</div><!-- end .meta-box-sortables -->

@@ -15,10 +15,35 @@ border: 1px solid #E0E0E0;
 -moz-border-radius: 7px;
 border-radius: 7px;
 }
+.lead_meta_val {
+	display: none;
+}
+.left-float-filter {
+	float: left;
+display: inline-block;
+clear: both;
+padding: 6px;
+padding-left: 0px;
+padding-top: 9px;
+font-size: 18px;
+font-weight: 300;
+}
+.subsubsub {
+margin: 0px;
+padding: 0px;
+vertical-align: top;
+margin-bottom: 10px;
+padding-top: 2px;
+}
 .row-actions {
 	position: relative;
 	width: 500px;
 	margin-top: 3px;
+}
+.tablenav .actions {
+overflow: hidden;
+padding: 2px 8px 0 0;
+padding-right: 0px;
 }
 td.first-name {
 	overflow: visible;
@@ -55,7 +80,7 @@ border-left: 1px solid #EBEBEA;
 font-size: 12px;
 }
 .edit a, .trash a, .clone a, .mark-viewed, .mark-viewed-undo {
-	background: #94BA65 url('/wp-content/plugins/lp-lead-manager/images/leads-button.png') repeat-x top left;
+	background: #94BA65 url('/wp-content/plugins/leads/images/leads-button.png') repeat-x top left;
 border: 1px solid rgba(0,0,0,0.15);
 -webkit-border-radius: 2px;
 -moz-border-radius: 2px;
@@ -73,7 +98,7 @@ padding: 4px 5px;
 text-shadow: -1px -1px 1px rgba(0,0,0,0.15);
 }
 .edit a:hover, .trash a:hover, .clone a:hover, .mark-viewed:hover, .mark-viewed-undo:hover  {
-background-image: url('/wp-content/plugins/lp-lead-manager/images/gradhov.png');
+background-image: url('/wp-content/plugins/leads/images/gradhov.png');
 color: #fff;
 }
 .clone a:hover {

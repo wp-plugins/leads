@@ -1,84 +1,168 @@
 <?php
 
-$wpleads_user_fields['first_name']['label'] = 'First Name';
-$wpleads_user_fields['first_name']['name'] = 'wpleads_first_name';
-$wpleads_user_fields['first_name']['priority'] = 1;
-$wpleads_user_fields['first_name']['nature'] = "text-30";
+/**
+ * Function for rendering lead fields. Filterable
+ * @return array - Fields for lead data
+ */
+function wp_leads_get_lead_fields(){
 
+	$lead_fields = array(
+	    array(
+	        'label' => 'First Name',
+	        'key'  => 'wpleads_first_name',
+	        'priority' => 15,
+	        'type'  => 'text'
+	        ),
+	    array(
+	        'label' => 'Last Name',
+	        'key'  => 'wpleads_last_name',
+	        'priority' => 45,
+	        'type'  => 'text'
+	        ),
+	    array(
+	        'label' => 'Email',
+	        'key'  => 'wpleads_email_address',
+	        'priority' => 60,
+	        'type'  => 'text'
+	        ),
+	    array(
+	        'label' => 'Website',
+	        'key'  => 'wpleads_website',
+	        'priority' => 60,
+	        'type'  => 'text'
+	        ),
+	    array(
+	        'label' => 'Company Name',
+	        'key'  => 'wpleads_company_name',
+	        'priority' => 75,
+	        'type'  => 'text'
+	        ),
+	    array(
+	        'label' => 'Mobile Phone',
+	        'key'  => 'wpleads_mobile_phone',
+	        'priority' => 90,
+	        'type'  => 'text'
+	        ),
+	    array(
+	        'label' => 'Work Phone',
+	        'key'  => 'wpleads_work_phone',
+	        'priority' => 105,
+	        'type'  => 'text'
+	        ),
+	    array(
+	        'label' => 'Address',
+	        'key'  => 'wpleads_address_line_1',
+	        'priority' => 120,
+	        'type'  => 'text'
+	        ),
+	    array(
+	        'label' => 'Address Continued',
+	        'key'  => 'wpleads_address_line_2',
+	        'priority' => 135,
+	        'type'  => 'text'
+	        ),
+	    array(
+	        'label' => 'City',
+	        'key'  => 'wpleads_city',
+	        'priority' => 150,
+	        'type'  => 'text'
+	        ),
+	    array(
+	        'label' => 'State/Region',
+	        'key'  => 'wpleads_region_name',
+	        'priority' => 165,
+	        'type'  => 'text'
+	        ),
+	    array(
+	        'label' => 'Zip-code',
+	        'key'  => 'wpleads_zip',
+	        'priority' => 180,
+	        'type'  => 'text'
+	        ),
+	    array(
+	        'label' => 'Country',
+	        'key'  => 'wpleads_country_code',
+	        'priority' => 195,
+	        'type'  => 'text'
+	        ),
+	    array(
+	        'label' => 'Related Websites',
+	        'key'  => 'wpleads_websites',
+	        'priority' => 215,
+	        'type'  => 'links'
+	        ),
+	    array(
+	        'label' => 'Notes',
+	        'key'  => 'wpleads_notes',
+	        'priority' => 230,
+	        'type'  => 'textarea'
+	        ),
+	 
+	);
 
-$wpleads_user_fields['last_name']['label'] = 'Last Name';
-$wpleads_user_fields['last_name']['name'] = 'wpleads_last_name';
-$wpleads_user_fields['last_name']['priority'] = 2;
-$wpleads_user_fields['last_name']['nature'] = "text-30";
+$lead_fields = apply_filters('wp_leads_add_lead_field',$lead_fields);
 
-$wpleads_user_fields['email']['label'] = 'Email';
-$wpleads_user_fields['email']['name'] = 'wpleads_email_address';
-$wpleads_user_fields['email']['priority'] = 3;
-$wpleads_user_fields['email']['nature'] = "text-30";
+return $lead_fields;
+}
 
-//$wpleads_user_fields['ip_address']['priority'] = 99;
-//$wpleads_user_fields['ip_address']['nature'] = "text-30-readonly";
-//$wpleads_user_fields['ip_address']['value'] = get_post_meta( $post->ID , 'wpleads_ip_address', true );
+/* Add in custom lead fields */
+/* 
+add_filter('wp_leads_add_lead_field', 'custom_add_second_field', 10, 1);
+function custom_add_second_field($lead_fields) {
 
-// Maybe have global settings with if statements here: if website option off don't render this next option
-$wpleads_user_fields['company_name']['label'] = 'Website';
-$wpleads_user_fields['company_name']['name'] = 'wpleads_website';
-$wpleads_user_fields['company_name']['priority'] = 4;
-$wpleads_user_fields['company_name']['nature'] = "text-30";
+		
+         $new_fields =  array( 
+         					array(
+						        'label' => 'Upper Company',
+						        'key'  => 'wpleads_upper_company',
+						        'priority' => 18,
+						        'type'  => 'text'
+						        ),
+         					array(
+						        'label' => 'Lead Source',
+						        'key'  => 'wpleads_lead_source',
+						        'priority' => 19,
+						        'type'  => 'text'
+						        ),
+         					array(
+						        'label' => 'Vertical',
+						        'key'  => 'wpleads_vertical',
+						        'priority' => 19,
+						        'type'  => 'text'
+						        ),
+         					array(
+						        'label' => 'LNR Recipient',
+						        'key'  => 'wpleads_lnr_recipient',
+						        'priority' => 19,
+						        'type'  => 'text'
+						        ),
+         					array(
+						        'label' => 'LNR Sent',
+						        'key'  => 'wpleads_lnr_sent',
+						        'priority' => 19,
+						        'type'  => 'text'
+						        ),
+         					array(
+						        'label' => 'Salutation',
+						        'key'  => 'wpleads_salutation',
+						        'priority' => 19,
+						        'type'  => 'text'
+						        ),
+         					array(
+						        'label' => 'Description',
+						        'key'  => 'wpleads_description',
+						        'priority' => 19,
+						        'type'  => 'textarea'
+						        )
+						    );
+		
+		foreach ($new_fields as $key => $value) {
+			array_push($lead_fields, $new_fields[$key]);
+		}
 
-$wpleads_user_fields['company_name']['label'] = 'Company Name';
-$wpleads_user_fields['company_name']['name'] = 'wpleads_company_name';
-$wpleads_user_fields['company_name']['priority'] = 5;
-$wpleads_user_fields['company_name']['nature'] = "text-30";
+        return $lead_fields;
 
-$wpleads_user_fields['mobile_phone']['label'] = 'Mobile Phone';
-$wpleads_user_fields['mobile_phone']['name'] = 'wpleads_mobile_phone';
-$wpleads_user_fields['mobile_phone']['priority'] = 6;
-$wpleads_user_fields['mobile_phone']['nature'] = "text-30";
+} */
 
-$wpleads_user_fields['work_phone']['label'] = 'Work Phone';
-$wpleads_user_fields['work_phone']['name'] = 'wpleads_work_phone';
-$wpleads_user_fields['work_phone']['priority'] = 7;
-$wpleads_user_fields['work_phone']['nature'] = "text-30";
-
-$wpleads_user_fields['address_line_1']['label'] = 'Address';
-$wpleads_user_fields['address_line_1']['name'] = 'wpleads_address_line_1';
-$wpleads_user_fields['address_line_1']['priority'] = 8;
-$wpleads_user_fields['address_line_1']['nature'] = "text-40";
-
-$wpleads_user_fields['address_line_2']['label'] = 'Address Continued';
-$wpleads_user_fields['address_line_2']['name'] = 'wpleads_address_line_2';
-$wpleads_user_fields['address_line_2']['priority'] = 9;
-$wpleads_user_fields['address_line_2']['nature'] = "text-40";
-
-$wpleads_user_fields['city']['label'] = 'City';
-$wpleads_user_fields['city']['name'] = 'wpleads_city';
-$wpleads_user_fields['city']['priority'] = 10;
-$wpleads_user_fields['city']['nature'] = "text-30";
-
-$wpleads_user_fields['state']['label'] = 'State/Region';
-$wpleads_user_fields['state']['name'] = 'wpleads_region_name';
-$wpleads_user_fields['state']['priority'] = 11;
-$wpleads_user_fields['state']['nature'] = "text-30";
-
-$wpleads_user_fields['zip']['label'] = 'Zip-code';
-$wpleads_user_fields['zip']['name'] = 'wpleads_zip';
-$wpleads_user_fields['zip']['priority'] = 12;
-$wpleads_user_fields['zip']['nature'] = "text-10";
-
-$wpleads_user_fields['country']['label'] = 'Country';
-$wpleads_user_fields['country']['name'] = 'wpleads_country_code';
-$wpleads_user_fields['country']['priority'] = 13;
-$wpleads_user_fields['country']['nature'] = "dropdown-country";
-
-$wpleads_user_fields['websites']['label'] = 'Related Websites';
-$wpleads_user_fields['websites']['name'] = 'wpleads_websites';
-$wpleads_user_fields['websites']['priority'] = 14;
-$wpleads_user_fields['websites']['nature'] = "links";
-
-$wpleads_user_fields['notes']['label'] = 'Notes';
-$wpleads_user_fields['notes']['name'] = 'wpleads_notes';
-$wpleads_user_fields['notes']['priority'] = 99;
-$wpleads_user_fields['notes']['nature'] = "textarea-5";
 
 ?>

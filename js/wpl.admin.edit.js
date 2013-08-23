@@ -1,4 +1,5 @@
 jQuery(document).ready(function () {
+	
 	jQuery('.row-actions').each(function() {
 		var jQuerylist = jQuery(this);
 		var jQueryfirstChecked = jQuerylist.parent().parent().find('.column-first-name');
@@ -8,7 +9,7 @@ jQuery(document).ready(function () {
 
 		jQuerylist.appendTo(jQueryfirstChecked);
 	}); 
-
+	jQuery("#wpleads_lead_tab_main_inner").fadeIn(1000);
 	jQuery('.touchpoint-value').each(function() {
 		var touch_val = jQuery(this).text();
 
@@ -17,14 +18,18 @@ jQuery(document).ready(function () {
 		}
 		jQuery(this).find(".touchpoint-minute").show();
 	}); 
+	
 	var hideempty = jQuery("#touch-point span:visible").length;
 	var hideago = jQuery("#session-time-since:visible").length;
+	
 	if (hideempty === 0) {
 		jQuery("#touch-point").html("<strong>Moments ago</strong>")
 	}
+	
 	if (hideago === 0) {
 		jQuery("#session-time-since").text("Just Now!");
 	}
+	
 	jQuery("#submitdiv .hndle").text("Update Lead Information");
 	var html = '<a class="add-new-h2" href="edit.php?post_type=wp-lead">Back</a>';
 	jQuery('.add-new-h2').before(html);
@@ -43,7 +48,17 @@ jQuery(document).ready(function () {
 		var this_id = jQuery(this).attr('id');
 		jQuery('#wpleads_websites-'+this_id).remove();
 	});
-	jQuery('#wpleads_main_container input').each(
+
+	jQuery.fn.tagcloud.defaults = {
+	  size: {start: 10, end: 25, unit: 'pt'},
+	  color: {start: '#bbb', end: '#2a95c5'}
+	};
+
+	jQuery(function () {
+	  jQuery('#lead-tag-cloud a').tagcloud();
+	});
+	
+	jQuery('#wpleads_main_container input, #wpleads_main_container textarea').each(
 		
         function(){
    			// hide empty fields
@@ -56,13 +71,23 @@ jQuery(document).ready(function () {
           
         }
     ); 
-    if (jQuery('#wpleads-td-wpleads_websites').hasClass('hidden-lead-fields')) {
-    jQuery('.wpleads_websites').hide().addClass('hidden-lead-fields');
+
+    
+	if (jQuery('#wpleads-td-wpleads_websites').hasClass('hidden-lead-fields')) {
+		jQuery('.wpleads_websites').hide().addClass('hidden-lead-fields');
 	}
-    jQuery("#show-hidden-fields").click(function() {
- 	jQuery(".hidden-lead-fields").toggle();
- 	jQuery("#add-notes").hide();
+	
+	
+	jQuery("#conversions-data-display nav li").click(function() {
+		jQuery(".active").removeClass("active");
+		jQuery(this).addClass("active");
 	});
+
+	jQuery("#show-hidden-fields").click(function() {
+		jQuery(".hidden-lead-fields").toggle();
+		jQuery("#add-notes").hide();
+	});
+	
 	var notesarea = jQuery("#wpleads-td-wpleads_notes").text();
 	if (notesarea === "") {
 		jQuery("#wpleads-td-wpleads_notes textarea").hide().addClass('hidden-lead-fields');
@@ -70,22 +95,29 @@ jQuery(document).ready(function () {
 		jQuery(expandnotes).appendTo(jQuery("#wpleads-td-wpleads_notes"));
 		
 	}
-	  jQuery("#add-notes").click(function() {
- 	jQuery("#wpleads-td-wpleads_notes textarea").toggle();
- 	jQuery("#add-notes").hide();
+	
+	jQuery("#add-notes").click(function() {
+		jQuery("#wpleads-td-wpleads_notes textarea").toggle();
+		jQuery("#add-notes").hide();
 	});
 
 	 jQuery(".conversion-tracking-header").on("click", function(event){
 	 //	alert("yes");
-var link = jQuery(this).find(".toggle-conversion-list");
-var conversion_log = jQuery(this).parent().find(".leads-visit-list, .session-stats").toggle();
+	var link = jQuery(this).find(".toggle-conversion-list");
+	var conversion_log = jQuery(this).parent().find(".leads-visit-list, .session-stats").toggle();
 
-      if (jQuery(conversion_log).is(":visible")) {
-                 link.text('-');                
-            } else {
-                 link.text('+');                
-            }    
-}); 
+		  if (jQuery(conversion_log).is(":visible")) {
+					 link.text('-');                
+				} else {
+					 link.text('+');                
+				}    
+	}); 
+
+	jQuery("body").on('click', '#conversion-total', function () {
+		jQuery("#tabs-wpleads_lead_tab_conversions").click();
+    });
+
+
  	var textchange = jQuery("#timestamp").html().replace("Published", "Created");
   	jQuery('#timestamp').html(textchange);
 	var pageviews = jQuery(".marker").size();
@@ -101,59 +133,125 @@ var conversion_log = jQuery(this).parent().find(".leads-visit-list, .session-sta
 		jQuery("#conversion-total").text(totalconversions);
 	}
 	jQuery('h2 .nav-tab').eq(0).css("margin-left", "10px");
-jQuery("#message.updated").text("Lead Updated").css("padding", "10px");
-		jQuery('.wpleads-conversion-tracking-table').each(function() {
-			var number_of_pages = jQuery(this).find('.lp-page-view-item').size();
-			jQuery(this).find("#pages-view-in-session").text(number_of_pages);
-			if (number_of_pages == 1) {
-			   jQuery(this).find(".session-stats-header").hide();  
-			   jQuery(this).find("#session-pageviews").hide();            
-			   }      
-		});	
-		// view toggles
-jQuery(".view-this-lead-session a").on("click", function(event){
-var s_number = jQuery(this).attr("rel");
-var correct_session = ".session_id_" + s_number;
-console.log(correct_session);
-jQuery(".conversion-session-view").hide();
-jQuery(correct_session).show();
-});	
+	
+	jQuery("#message.updated").text("Lead Updated").css("padding", "10px");
+	jQuery('.wpleads-conversion-tracking-table').each(function() {
+		var number_of_pages = jQuery(this).find('.lp-page-view-item').size();
+		jQuery(this).find("#pages-view-in-session").text(number_of_pages);
+		if (number_of_pages == 1) {
+		   jQuery(this).find(".session-stats-header").hide();  
+		   jQuery(this).find("#session-pageviews").hide();            
+		   }      
+	});
+	
+	// view toggles
+	jQuery(".view-this-lead-session a").on("click", function(event){
+	var s_number = jQuery(this).attr("rel");
+	var correct_session = ".session_id_" + s_number;
+	console.log(correct_session);
+	jQuery(".conversion-session-view").hide();
+	jQuery(correct_session).show();
+	});	
 
-// lead mapping 
-var selectbox = jQuery('<select style="display:none" name="NOA" class="id_NOA"></select>'); 
-jQuery("#raw-data-display").prepend(selectbox);
-jQuery('.wpleads-th label').each(function(i) {
-			// create select options
-new_loop_val = i + 1;
-var id_for_val = jQuery(this).parent().parent().attr("class");
-var final_id = id_for_val.replace(" hidden-lead-fields","");
-field_name_dirty = jQuery(this).text();
-var field_name_clean = field_name_dirty.replace(":","");
-var field_name_cleaner = field_name_clean.replace("/","");
-jQuery(".id_NOA").append("<option value='" + final_id +"'>" + field_name_cleaner + "</option>");
-		});	 
-jQuery(".map-raw-field").on("click", function(event){
-var count_of_fields = jQuery(this).parent().find(".possible-map-value").size();
-var this_selected = jQuery(this).parent().find(".toggle-val").size();
-console.log(this_selected);
-if (this_selected === 1) {
-jQuery(".toggle-val").addClass("re-do").removeClass("toggle-val");
-jQuery(".re-do").addClass("toggle-val").removeClass("re-do");
-}
-if (count_of_fields === 1){
-	jQuery(this).parent().find(".possible-map-value").addClass('toggle-val');
-}	
-jQuery(".map-active-class").removeClass("map-active-class");
 
-jQuery(this).find(".apply-map").show();
-jQuery(this).prepend(selectbox);
-jQuery(selectbox).show();
-jQuery(".map-hide").show();
-jQuery(this).addClass("map-active-class");
+	// Sort by date. http://stackoverflow.com/questions/7211704/jquery-order-by-date-in-data-attribute
+jQuery(document).ready(function($) {
+jQuery("#conversions-data-display .recent-conversion-item").sort(function(a,b){
+    return new Date(jQuery(a).attr("data-date")) > new Date(jQuery(b).attr("data-date"));
+}).each(function(){
+var clone = jQuery(this).clone().addClass("cloned-item");
+    jQuery("#all-lead-history").append(clone);
 
-}); 
-var nonce_val = wp_lead_map.wp_lead_map_nonce;
-jQuery(".apply-map").on('click', function () {
+})
+//jQuery(".cloned-item").wrap("<li>");
+jQuery(".lead-item-num, .lead-activity").hide();
+
+
+ var reviews = jQuery('#all-lead-history .recent-conversion-item');
+    reviews.tsort({ attr: 'data-date', order: 'desc' });
+    jQuery('#newest-event').click(function(){
+    	var which_sort = jQuery(".event-order-list").attr("data-change-sort");
+		var the_list = jQuery(which_sort + ' .recent-conversion-item');
+        the_list.tsort({ attr: 'data-date', order: 'desc' });
+        jQuery('.lead-sort-active').removeClass('lead-sort-active');
+        jQuery(this).addClass('lead-sort-active');
+    });
+    
+    jQuery('#oldest-event').click(function(){
+    	var which_sort = jQuery(".event-order-list").attr("data-change-sort");
+		var the_list = jQuery(which_sort + ' .recent-conversion-item');
+        the_list.tsort({ attr: 'data-date', order: 'asc' });
+        jQuery('.lead-sort-active').removeClass('lead-sort-active');
+        jQuery(this).addClass('lead-sort-active');
+    });
+ 
+    jQuery('#highest').click(function(){
+        reviews.tsort({ attr: 'data-rating', order: 'desc' });
+    });
+    
+    jQuery('#lowest').click(function(){
+        reviews.tsort({ attr: 'data-rating', order: 'asc' });
+    });    
+ });
+	// activity toggles
+	jQuery("body").on('click', '.lead-activity-toggle', function (event) {
+		event.preventDefault();
+		var toggle_this = jQuery(this).attr("href");
+		jQuery(".event-order-list").attr("data-change-sort", toggle_this);
+		jQuery(".lead-activity").hide();
+		jQuery("#all-lead-history").hide();
+		var which_sort = jQuery(".event-order-list").attr("data-change-sort");
+		var the_list = jQuery(which_sort + ' .recent-conversion-item');
+        the_list.tsort({ attr: 'data-date', order: 'desc' });
+		jQuery(toggle_this).fadeIn(700);
+		jQuery(".lead-item-num").show();
+    });
+
+    jQuery("body").on('click', '.lead-activity-show-all', function () {
+    	event.preventDefault();
+    	jQuery(".lead-activity").hide();
+    	jQuery(".event-order-list").attr("data-change-sort", "#all-lead-history");
+    	jQuery("#all-lead-history").fadeIn(700);
+    	jQuery(".lead-item-num").hide();
+    	//jQuery(".lead-activity").fadeIn(700);
+    });
+
+	// lead mapping 
+	var selectbox = jQuery('<select style="display:none" name="NOA" class="id_NOA"></select>'); 
+	jQuery("#raw-data-display").prepend(selectbox);
+	jQuery('.wpleads-th label').each(function(i) {
+		// create select options
+		new_loop_val = i + 1;
+		var id_for_val = jQuery(this).parent().parent().attr("class");
+		var final_id = id_for_val.replace(" hidden-lead-fields","");
+		field_name_dirty = jQuery(this).text();
+		var field_name_clean = field_name_dirty.replace(":","");
+		var field_name_cleaner = field_name_clean.replace("/","");
+		jQuery(".id_NOA").append("<option value='" + final_id +"'>" + field_name_cleaner + "</option>");
+	});	 
+	
+	jQuery(".map-raw-field").on("click", function(event){
+		var count_of_fields = jQuery(this).parent().find(".possible-map-value").size();
+		var this_selected = jQuery(this).parent().find(".toggle-val").size();
+		console.log(this_selected);
+		if (this_selected === 1) {
+		jQuery(".toggle-val").addClass("re-do").removeClass("toggle-val");
+		jQuery(".re-do").addClass("toggle-val").removeClass("re-do");
+		}
+		if (count_of_fields === 1){
+			jQuery(this).parent().find(".possible-map-value").addClass('toggle-val');
+		}	
+		jQuery(".map-active-class").removeClass("map-active-class");
+
+		jQuery(this).find(".apply-map").show();
+		jQuery(this).prepend(selectbox);
+		jQuery(selectbox).show();
+		jQuery(".map-hide").show();
+		jQuery(this).addClass("map-active-class");
+	}); 
+	
+	var nonce_val = wp_lead_map.wp_lead_map_nonce;
+	jQuery(".apply-map").on('click', function () {
         var value_clicked = jQuery(this).parent().parent().find(".toggle-val").size();
 
         if (value_clicked === 0) {
@@ -208,40 +306,40 @@ jQuery(".apply-map").on('click', function () {
         //alert(toggle_value);
     });
 
-jQuery(".possible-map-value").on("click", function(event){
-jQuery(".toggle-val").removeClass("toggle-val");
-jQuery(this).toggleClass("toggle-val");
-});
+	jQuery(".possible-map-value").on("click", function(event){
+	jQuery(".toggle-val").removeClass("toggle-val");
+	jQuery(this).toggleClass("toggle-val");
+	});
 
-var null_lead_status = jQuery("#current-lead-status").text();
+	var null_lead_status = jQuery("#current-lead-status").text();
 
-if (null_lead_status === "") {
-var post_id = jQuery("#post_ID").val();
-jQuery.ajax({
-			type: 'POST',
-			url: wp_lead_map.ajaxurl,
-			context: this,
-			data: {
-				action: 'wp_leads_auto_mark_as_read',
-				page_id: post_id,
-				nonce: nonce_val
-			},
-			
-			success: function(data){
-				var self = this;
-						//alert(data);
-						// jQuery('.lp-form').unbind('submit').submit();
-						var worked = '<span class="success-message-map" style="display: inline-block;margin-top: -1px;margin-left: 20px;padding:4px 25px 4px 20px;position: absolute;">This Lead has been marked as read/viewed.</span>';
-		            	var s_message = jQuery("#lead-top-area");
-						jQuery(worked).appendTo(s_message);	 
-						// alert("This lead is marked as read.");
-					   },
+	if (null_lead_status === "") {
+	var post_id = jQuery("#post_ID").val();
+	jQuery.ajax({
+				type: 'POST',
+				url: wp_lead_map.ajaxurl,
+				context: this,
+				data: {
+					action: 'wp_leads_auto_mark_as_read',
+					page_id: post_id,
+					nonce: nonce_val
+				},
+				
+				success: function(data){
+					var self = this;
+							//alert(data);
+							// jQuery('.lp-form').unbind('submit').submit();
+							var worked = '<span class="success-message-map" style="display: inline-block;margin-top: -1px;margin-left: 20px;padding:4px 25px 4px 20px;position: absolute;">This Lead has been marked as read/viewed.</span>';
+							var s_message = jQuery("#lead-top-area");
+							jQuery(worked).appendTo(s_message);	 
+							// alert("This lead is marked as read.");
+						   },
 
-			error: function(MLHttpRequest, textStatus, errorThrown){
-				alert("Error thrown not sure why");
-				}
-		});
+				error: function(MLHttpRequest, textStatus, errorThrown){
+					alert("Error thrown not sure why");
+					}
+			});
 
-}
+	}
 
 });

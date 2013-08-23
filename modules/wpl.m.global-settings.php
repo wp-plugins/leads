@@ -10,24 +10,35 @@
 	}
 	
 	/*SETUP NAVIGATION AND DISPLAY ELEMENTS*/
-	$tab_slug = 'wpl-main';
-	$wpleads_global_settings[$tab_slug]['label'] = 'Global Settings';	
-	
-	$wpleads_global_settings[$tab_slug]['options'][] = wpleads_add_option($tab_slug,"text","tracking-ids","","IDs of forms to track","<p>Enter in a value found in a HTML form's id attribute to track it as a conversion.</p><p>Do not include the # in the id. <strong>Example format: Form_ID, Form-ID-2</strong></p><p>Gravity Forms, Contact Form 7, and Ninja Forms are automatically tracked (no need to add their IDs in here)</p>", $options=null);
-	/*SETUP END*/
-
-
-
-	function wpleads_get_global_settings_elements()
+	function wpleads_get_global_settings()
 	{
-		global $wpleads_global_settings;
+		/*SETUP NAVIGATION AND DISPLAY ELEMENTS*/
+		$tab_slug = 'wpl-main';
+		$wpleads_global_settings[$tab_slug]['label'] = 'Global Settings';	
+		
+		$wpleads_global_settings[$tab_slug]['options'][] = wpleads_add_option($tab_slug,"text","tracking-ids","","IDs of forms to track","<p>Enter in a value found in a HTML form's id attribute to track it as a conversion.</p><p>Do not include the # in the id. <strong>Example format: Form_ID, Form-ID-2</strong></p><p>Gravity Forms, Contact Form 7, and Ninja Forms are automatically tracked (no need to add their IDs in here)</p>", $options=null);
+
+		$wpleads_global_settings[$tab_slug]['options'][] = wpleads_add_option($tab_slug,"text","exclude-tracking-ids","","IDs of forms NOT to track","<p>Enter in a value found in a HTML form's id attribute to turn off tracking.</p>", $options=null);
+		
+		$wpleads_global_settings[$tab_slug]['options'][] = wpleads_add_option($tab_slug,"radio","form-prepopulation","1","Form prepopulation","<p>WordPress Leads records submitted field data for leads and will attempt to prepopulate forms with the last inputted data. Disabling this will turn this feature off.</p>", $options=array('1'=>'On','0'=>'Off'));
+
+		$wpleads_global_settings[$tab_slug]['options'][] = wpleads_add_option($tab_slug,"radio","page-view-tracking","1","Page View Tracking","<p>WordPress Leads automatically tracks page views of converted leads. This is extremely valuable lead intelligence and will help with your sales followups. However with great power comes great resposibility, this extra tracking can cause problems on high high traffic sites. You can turn off tracking if you see any issues.</p>", $options=array('1'=>'On','0'=>'Off'));
+
+		$wpleads_global_settings[$tab_slug]['options'][] = wpleads_add_option($tab_slug,"text","extra-lead-data","","Full Contact API Key","<p>Enter your Full contact API key. If you don't have one. Grab a free one here: <a href='https://www.fullcontact.com/developer/pricing/' target='_blank'>here</a></p>", $options=null);
+		/*SETUP END*/
+		
+		$wpleads_global_settings = apply_filters('wpleads_define_global_settings', $wpleads_global_settings);
+		
 		return $wpleads_global_settings;
-	}	
+	}
+
+
+
 	
 	function wpleads_display_global_settings_js()
 	{	
 		global $wpleads_global_settings;
-		$wpleads_global_settings = wpleads_get_global_settings_elements();
+		$wpleads_global_settings = wpleads_get_global_settings();
 		
 		if (isset($_GET['tab']))
 		{
@@ -77,8 +88,7 @@
 	function wpleads_display_global_settings()
 	{	
 		global $wpdb;
-		global $wpleads_global_settings;
-		$wpleads_global_settings = wpleads_get_global_settings_elements();
+		$wpleads_global_settings = wpleads_get_global_settings();
 		$active_tab = 'main'; 
 		if (isset($_REQUEST['open-tab']))
 		{
@@ -115,7 +125,7 @@
 	function wpleads_save_global_settings() 
 	{
 		//echo "here";exit;
-		$wpleads_global_settings = wpleads_get_global_settings_elements();
+		$wpleads_global_settings = wpleads_get_global_settings();
 		
 		if (!isset($_POST['nature']))
 			return;

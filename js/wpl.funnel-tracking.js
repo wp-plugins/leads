@@ -1,3 +1,4 @@
+
 function wpl_numKeys(obj)
 {
     var count = 0;
@@ -29,6 +30,7 @@ function countProperties(obj) {
 }
 /* build tracking uid */
 function generate_wp_leads_uid(length) {
+	
     var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('');
 
     if (! length) {
@@ -41,6 +43,23 @@ function generate_wp_leads_uid(length) {
     }
     return str;
 }
+
+/* build tracking uid */
+function generate_session_id(length) {
+    var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('');
+
+    if (! length) {
+        length = Math.floor(Math.random() * chars.length);
+    }
+
+    var str = '';
+    for (var i = 0; i < length; i++) {
+        str += chars[Math.floor(Math.random() * chars.length)];
+    }
+    return str;
+}
+
+
 /* Function for adding minutes to current time */
 function addMinutes(date, minutes) {
     return new Date(date.getTime() + minutes*60000);
@@ -102,7 +121,7 @@ function addMinutes(date, minutes) {
 
 // Unique WP Lead ID
 var wp_lead_uid_val =  generate_wp_leads_uid(35);
-
+//alert(wplft.ip_address);
 if(jQuery.cookie("wp_lead_uid") === null) { 
     jQuery.cookie("wp_lead_uid", wp_lead_uid_val, { path: '/', expires: 365 });
 }
@@ -131,39 +150,36 @@ var the_time_out = addMinutes(date, .1);
 var lead_uid = jQuery.cookie("wp_lead_uid");
 var lead_id = jQuery.cookie("wp_lead_id");
 var lead_email = jQuery.cookie("wp_lead_email");
-/* Start LocalStorage */
 
+
+
+/* Start LocalStorage */
 var trackObj = jQuery.totalStorage('cpath');
-//console.log(trackObj);
-//console.log(the_time_out);
-//console.log(date);
-//var jsonData = eval(trackObj);
-//session_id = jsonData[0].session;
-//console.log(session_id);
 
 if (typeof trackObj =='object' && trackObj)
 {
 	session_count = countProperties(trackObj);
 	// If session is past timout limit
 	if(!jQuery.cookie( "lead_session_expire") ) {
+		var session_id = generate_session_id(11);
         console.log("Start New Tracking Session");
    		// Start New Tracking Block
-   		trackObj.push({ session: session_count + 1,
+   		trackObj.push({ 
+			 session: session_count + 1,
+			 session_id: session_id,
 			 pageviews: [{id: 1, 
 								current_page: current_page,
+								post_id : wplft.post_id,
 								timestamp: datetime,  
 								referrer: referrer,  
 								original_referrer: referrer 
-								}],
-				events_fired: [{id: '1', 
-								event_name: "Event Name",
-								timestamp: datetime
 								}],
 				last_activity: date, // Last movement	
 					  timeout: the_time_out, // Thirty minute timeout
 					 lead_uid: lead_uid,	  
 					  lead_id: lead_id,
-				   lead_email: lead_email
+				   lead_email: lead_email,
+				   lead_ip_address: wplft.ip_address
 				});
      } else {
 	    // If session still active, do this
@@ -181,7 +197,7 @@ if (typeof trackObj =='object' && trackObj)
 		    trackObj[number].lead_email = lead_email;
 		}
 		trackObj[number].pageviews.push(
-			{ id : new_count+1,  current_page: current_page, timestamp: datetime, referrer: referrer}
+			{ id : new_count+1,  current_page: current_page, post_id : wplft.post_id, timestamp: datetime, referrer: referrer}
 		)
 	}
 } 
@@ -189,36 +205,73 @@ else
 {	
 	// Create initial tracking block
 	var trackObj = new Array();
-	trackObj.push({ session: 1,
+	var session_id = generate_session_id(11);
+	trackObj.push({ 
+					session: 1,
+					session_id: session_id,
 					pageviews: [{id: 1, 
 								current_page: current_page,
+								post_id : wplft.post_id,
 								timestamp: datetime,  
 								referrer: referrer,  
 								original_referrer: referrer 
-								}],
-				 events_fired: [{id: '1', 
-								event_name: "Event Name",
-								timestamp: datetime
-								}],			
+								}],	
 				last_activity: date, // Last movement	
-					  timeout: the_time_out, // Thirty minute timeout
-					 lead_uid: lead_uid,	  
-					  lead_id: lead_id,
-					lead_email: lead_email
+					timeout: the_time_out, // Thirty minute timeout
+					lead_uid: lead_uid,	  
+					lead_id: lead_id,
+					lead_email: lead_email,
+				    lead_ip_address: wplft.ip_address
 				}
 			);
 	
 }
 jQuery.totalStorage('cpath', trackObj);
-//console.log(JSON.stringify(trackObj)); // output tracking string
 
-/* Set Expiration Date of Session Logging */
-var e_date = new Date(); // Current date/time
-var e_minutes = 30; // 30 minute timeout to reset sessions
-e_date.setTime(e_date.getTime() + (e_minutes * 60 *1000)); // Calc 30 minutes from now
-jQuery.cookie("lead_session_expire", false, {expires: e_date, path: '/' }); // Set cookie on page loads
-var expire_time = jQuery.cookie("lead_session_expire"); // 
-//console.log(expire_time);
+// Page View Object: Sessionless and clears on form submittions
+var pageviewObj = jQuery.totalStorage('page_views');
+if (typeof pageviewObj =='object' && pageviewObj)
+{
+	    // If pageviewObj exists, do this
+	    number = 0;	
+		var new_count = pageviewObj[number].pageviews.length;
+		console.log(new_count);
+		if(jQuery.cookie('wp_lead_uid')){
+		    pageviewObj[number].lead_uid = lead_uid;
+		}
+		if(jQuery.cookie('wp_lead_id')){
+		    pageviewObj[number].lead_id = lead_id;
+		}
+		if(jQuery.cookie('wp_lead_email')){
+		    pageviewObj[number].lead_email = lead_email;
+		}
+		pageviewObj[number].pageviews.push(
+			{ id : new_count+1,  current_page: current_page, post_id : wplft.post_id, timestamp: datetime, referrer: referrer}
+		);
+} else {	
+// Create initial pageviewObj
+	var pageviewObj = new Array();
+	pageviewObj.push({ 
+						source: 'Organic',
+						pageviews: [{id: 1, 
+									current_page: current_page,
+									post_id : wplft.post_id,
+									timestamp: datetime,  
+									referrer: referrer,  
+									original_referrer: referrer 
+									}],
+						lead_uid: lead_uid,	  
+						lead_id: lead_id,
+						lead_email: lead_email,
+					    lead_ip_address: wplft.ip_address
+				}
+			);
+	
+}
+jQuery.totalStorage('page_views', pageviewObj);
+// console.log(JSON.stringify(pageviewObj[0].pageviews)) // output the pages viewed
+
+
 /* End local storage */
 
 /* Start Legacy Cookie Storage */
