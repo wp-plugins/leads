@@ -4,7 +4,7 @@ Plugin Name: WordPress Leads
 Plugin URI: http://www.inboundnow.com/landing-pages/downloads/lead-management/
 Description: Wordpress Lead Manager provides CRM (Customer Relationship Management) applications for WordPress Landing Page plugin. Lead Manager Plugin provides a record management interface for viewing, editing, and exporting lead data collected by Landing Page Plugin. 
 Author: Hudson Atwell(@atwellpub), David Wells (@inboundnow)
-Version: 1.0.0.4
+Version: 1.0.6
 Author URI: http://www.inboundnow.com/landing-pages/
 */
 
@@ -17,6 +17,11 @@ include_once('modules/wpl.m.post-type.list.php');
 include_once('modules/wpl.m.ajax-setup.php'); 
 include_once('modules/wpl.m.form-integrations.php'); 
 include_once('functions/wpl.f.global.php'); 
+
+/* Inbound Core Shared Files. Lead files take presidence */
+include_once( 'shared/tracking/store.lead.php'); // Lead Storage
+
+add_action( 'wpl_store_lead_post', 'wpleads_hook_store_lead_post' );
 
 if (is_admin()) 
 {
@@ -33,7 +38,8 @@ if (is_admin())
 	register_activation_hook(__FILE__, 'wpleads_activate');
 	include_once('modules/wpl.m.activate.php'); 
 	include_once('modules/wpl.m.metaboxes.wp-lead.php'); 
-	//include_once('modules/wpl.m.metaboxes.list.php');   
+	include_once('modules/wpl.m.wp_list_table-leads.php');   
+	include_once('modules/wpl.m.metaboxes.list.php');   
 	include_once('functions/wpl.f.admin.php'); 	
 	include_once('modules/wpl.m.global-settings.php'); 
 	include_once('modules/wpl.m.dashboard.php');
@@ -79,6 +85,31 @@ function wp_leads_get_page_final_id(){
 		return $page_id;
 }
 
+if (!function_exists('lp_remote_connect')) {
+function lp_remote_connect($url)
+{
+	$method1 = ini_get('allow_url_fopen') ? "Enabled" : "Disabled";
+	if ($method1 == 'Disabled')
+	{
+		//do curl
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, "$url");
+		curl_setopt ($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt ($ch, CURLOPT_FOLLOWLOCATION, 1);
+		curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookie.txt');
+		curl_setopt($ch, CURLOPT_COOKIEFILE, 'cookie.txt');
+		curl_setopt ($ch, CURLOPT_TIMEOUT, 60);
+		$string = curl_exec($ch);
+	}
+	else
+	{
+		$string = file_get_contents($url);
+	}
+	
+	return $string;
+}
+}
+
 add_action('wp_enqueue_scripts', 'wpleads_enqueuescripts_header');
 function wpleads_enqueuescripts_header()
 {
@@ -92,7 +123,9 @@ function wpleads_enqueuescripts_header()
     $lead_cpt_id = (isset($_COOKIE['wp_lead_id'])) ? $_COOKIE['wp_lead_id'] : false;
     $lead_email = (isset($_COOKIE['wp_lead_email'])) ? $_COOKIE['wp_lead_email'] : false;
     $lead_unique_key = (isset($_COOKIE['wp_lead_uid'])) ? $_COOKIE['wp_lead_uid'] : false;
-	    $lead_data_array = array();
+	
+	// Localize lead data    
+	$lead_data_array = array();
 		if ($lead_cpt_id) {
 			$lead_data_array['lead_id'] = $lead_cpt_id;
 			$type = 'wplid';}
@@ -103,7 +136,6 @@ function wpleads_enqueuescripts_header()
 	    	$lead_data_array['lead_uid'] = $lead_unique_key;
 			$type = 'wpluid'; 
 		}
-	//print_r($lead_data_array);
 	
 	// Load Tracking Scripts
 	if($post_type != "wp-call-to-action") {
@@ -113,13 +145,15 @@ function wpleads_enqueuescripts_header()
 		wp_enqueue_script('jquery-total-storage');
 
 		if($post_id === 0){
-				$final_page_id = wp_leads_get_page_final_id();
+			$final_page_id = wp_leads_get_page_final_id();
 			} else {
-				$final_page_id = $post_id;
+			$final_page_id = $post_id;
 			}
 
 		wp_enqueue_script( 'funnel-tracking' , WPL_URL . '/js/wpl.funnel-tracking.js', array( 'jquery','jquery-cookie'));
-		wp_localize_script( 'funnel-tracking' , 'wplft', array( 'post_id' => $final_page_id, 'ip_address' => $ip_address, 'wp_lead_data' => $lead_data_array));
+		wp_enqueue_script( 'store-lead-ajax' , WPL_URL . '/shared/tracking/js/store.lead.ajax.js', array( 'jquery','jquery-cookie'));
+		wp_localize_script( 'store-lead-ajax' , 'inbound_ajax', array( 'admin_url' => admin_url( 'admin-ajax.php' ), 'post_id' => $final_page_id, 'post_type' => $post_type));
+		wp_localize_script( 'funnel-tracking' , 'wplft', array( 'post_id' => $final_page_id, 'ip_address' => $ip_address, 'wp_lead_data' => $lead_data_array, 'admin_url' => admin_url( 'admin-ajax.php' )));
 
 		// Load Lead Page View Tracking
 		$lead_page_view_tracking = get_option( 'page-view-tracking' , 1);
@@ -135,14 +169,14 @@ function wpleads_enqueuescripts_header()
 		}
 
 		// Load form pre-population
-		$form_prepopulation = get_option( 'form-prepopulation' , 1);
+		$form_prepopulation = get_option( 'wpl-main-form-prepopulation' , 1);
 		if ($form_prepopulation)
 		{
-			wp_enqueue_script('form-population', WPL_URL . '/js/wpl.form-population.js', array( 'jquery','jquery-cookie'));	
+			wp_enqueue_script('wpl-main-form-population', WPL_URL . '/js/wpl.form-population.js', array( 'jquery','jquery-cookie'));	
 		}
 		
+		// Load form tracking class
 		$form_ids = get_option( 'wpl-main-tracking-ids' , 1);
-		
 		if ($form_ids)
 		{
 			wp_enqueue_script('wpl-assign-class', WPL_URL . '/js/wpl.assign-class.js', array( 'jquery'));	
@@ -189,8 +223,6 @@ function wpleads_admin_enqueuescripts($hook)
 		{
 			wp_enqueue_script('wpleads-create-new-lead', WPL_URL . '/js/wpl.add-new.js');
 		}		
-
-			
 		
 	
 	}
@@ -202,68 +234,6 @@ function wpleads_admin_enqueuescripts($hook)
 	}
 }
 
-//if Landing Pages plugin not active setup independant tracking else intgrate into Landing Pages Tracking.
-if (!@function_exists('lp_check_active'))
-{
-	//echo 1; exit;
-	add_action('wp_footer','wpl_register_ajax');
-	function wpl_register_ajax() 
-	{
-
-		include_once(WPL_PATH . '/js/wpl.leads-tracking.js.php');
-
-	}
-	
-	//add additional tracking to Stand Alone.
-	add_action( 'wpl_store_lead_post', 'wpleads_hook_store_lead_post' );
-}
-else
-{
-	//add additional tracking into Landing Pages
-	add_action( 'lp_store_lead_post', 'wpleads_hook_store_lead_post' );
-	add_action( 'wpl_store_lead_post', 'wpleads_hook_store_lead_post' );
-	
-	//add tracking for non lp pages		
-	add_action('wp_footer','wpl_register_ajax');
-	function wpl_register_ajax() 
-	{
-		$url  = "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
-		$current_url = trim($url);
-		$page_id = wpl_url_to_postid( $current_url );
-		$post_type = get_post_type($page_id);
-
-		if ($post_type!='landing-page')
-		{
-			include_once(WPL_PATH . '/js/wpl.leads-tracking.js.php');
-		}
-		
-	}
-	
-	add_action( 'lp-lead-collection-add-js-pre', 'wpleads_hook_js_pre' );
-	function wpleads_hook_js_pre()
-	{
-		echo "var data_block = jQuery.parseJSON(jQuery.cookie('user_data_json'));
-				var page_view_count = jQuery(data_block.items).length;
-			//console.log(data_block);			
-			//alert('here');
-			var email;
-			var firstname;
-			var lastname;
-			var json = JSON.stringify(trackObj);
-			
-			//alert(json);
-		";
-	}
-
-	add_action( 'lp-lead-collection-add-ajax-data', 'wpleads_hook_data' );
-	function wpleads_hook_data()
-	{
-		echo ",
-			json: json,
-			page_view_count: page_view_count";
-				
-	}
-}
 
 function wpleads_set_lead_id($lead_id){
 	global $wpdb;
