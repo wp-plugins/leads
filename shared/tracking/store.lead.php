@@ -4,10 +4,12 @@
  * 
  * - Handles lead creation and storage
  */
+
+if (!function_exists('inbound_store_lead')) {
+
 add_action('wp_ajax_inbound_store_lead', 'inbound_store_lead');
 add_action('wp_ajax_nopriv_inbound_store_lead', 'inbound_store_lead');
 
-if (!function_exists('inbound_store_lead')) {
 function inbound_store_lead() 
 {
 	global $user_ID, $wpdb;
@@ -34,11 +36,30 @@ function inbound_store_lead()
 		(isset(	$_POST['page_views'] )) ? $page_views = $_POST['page_views'] : $page_views = false;
 		(isset(	$_POST['page_view_count'] )) ? $page_view_count = $_POST['page_view_count'] : $page_view_count = 0;
 		
-		// Update conversions
+		// Update Landing Page Conversions
 		if($post_type === 'landing-page'){
-			$lp_conversions = get_post_meta( $lp_id, 'lp-ab-variation-conversions-'.$lp_variation, true );
-			$lp_conversions++;
-			update_post_meta( $lp_id, 'lp-ab-variation-conversions-'.$lp_variation, $lp_conversions );
+			
+			$disable_admin_tracking = get_option( 'main-landing-page-disable-admin-tracking', '0' );
+			
+			if ( !$disable_admin_tracking || !current_user_can( 'manage_options' ) )
+			{				
+				$lp_conversions = get_post_meta( $lp_id, 'lp-ab-variation-conversions-'.$lp_variation, true );
+				$lp_conversions++;
+				update_post_meta( $lp_id, 'lp-ab-variation-conversions-'.$lp_variation, $lp_conversions );
+			}
+		}
+
+		// Update Call to Action Conversions
+		if($post_type === 'wp-call-to-action'){
+			
+			//$disable_admin_tracking = get_option( 'main-landing-page-disable-admin-tracking', '0' );
+			
+			//if ( !$disable_admin_tracking || !current_user_can( 'manage_options' ) )
+			//{				
+				$cta_conversions = get_post_meta( $lp_id, 'wp-cta-ab-variation-conversions-'.$lp_variation, true );
+				$cta_conversions++;
+				update_post_meta( $lp_id, 'wp-cta-ab-variation-conversions-'.$lp_variation, $cta_conversions );
+			//}
 		}
 		
 		//do_action('inbound_store_lead_pre'); // Global lead storage action hook
@@ -154,6 +175,7 @@ function inbound_store_lead()
 		$data['raw_post_values_json'] = $raw_post_values_json;
 		
 		do_action('wpl_store_lead_post', $data );
+		do_action('lp_store_lead_post', $data ); //legacy
 		
 		echo $post_ID;
 		die();
