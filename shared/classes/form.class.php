@@ -284,7 +284,7 @@ class InboundForms {
         if(isset($_POST['inbound_notify']) && $_POST['inbound_notify'] != "") {
             $email_to = base64_decode($_POST['inbound_notify']);
         }
-        print_r($_POST);
+        //print_r($_POST);
           foreach ( $_POST as $field => $value ) {
                 if ( get_magic_quotes_gpc() ) {
                     $value = stripslashes( $value );
@@ -383,7 +383,7 @@ class InboundForms {
                 //$result = $success;
                 // ...and switch the $sent variable to TRUE
                 $sent = true;
-                print_r($email_message); // preview email
+                //print_r($email_message); // preview email
                 //echo "email sent";
                 // Do redirect
                 //echo $redirect . $url_request;
