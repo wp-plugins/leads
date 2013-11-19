@@ -34,7 +34,7 @@
 
 		generate: function() {
 
-			var output = jQuery('#_fresh_shortcodes_output').text(),
+			var output = jQuery('#_inbound_shortcodes_output').text(),
 				newoutput = output;
 
 			jQuery('.inbound-shortcodes-input').each(function() {
@@ -56,8 +56,8 @@
 
 			});
 
-			jQuery('#_fresh_shortcodes_newoutput').remove();
-			jQuery('#inbound-shortcodes-form-table').prepend('<div id="_fresh_shortcodes_newoutput" class="hidden">' + newoutput + '</div>');
+			jQuery('#_inbound_shortcodes_newoutput').remove();
+			jQuery('#inbound-shortcodes-form-table').prepend('<div id="_inbound_shortcodes_newoutput" class="hidden">' + newoutput + '</div>');
 
 			InboundShortcodes.updatePreview();
 
@@ -65,7 +65,7 @@
 
 		generateChild : function() {
 
-			var output = jQuery('#_fresh_shortcodes_child_output').text(),
+			var output = jQuery('#_inbound_shortcodes_child_output').text(),
 				parent_output = '',
 				outputs = '';
 
@@ -93,14 +93,14 @@
 				outputs = outputs + row_output + "\n";
 			});
 
-			jQuery('#_fresh_shortcodes_child_newoutput').remove();
-			jQuery('.child-clone-rows').prepend('<div id="_fresh_shortcodes_child_newoutput" class="hidden">' + outputs + '</div>');
+			jQuery('#_inbound_shortcodes_child_newoutput').remove();
+			jQuery('.child-clone-rows').prepend('<div id="_inbound_shortcodes_child_newoutput" class="hidden">' + outputs + '</div>');
 
 			this.generate();
-			parent_output = jQuery('#_fresh_shortcodes_newoutput').text().replace('{{child}}', outputs);
+			parent_output = jQuery('#_inbound_shortcodes_newoutput').text().replace('{{child}}', outputs);
 
-			jQuery('#_fresh_shortcodes_newoutput').remove();
-			jQuery('#inbound-shortcodes-form-table').prepend('<div id="_fresh_shortcodes_newoutput" class="hidden">' + parent_output + '</div>');
+			jQuery('#_inbound_shortcodes_newoutput').remove();
+			jQuery('#inbound-shortcodes-form-table').prepend('<div id="_inbound_shortcodes_newoutput" class="hidden">' + parent_output + '</div>');
 
 			InboundShortcodes.updatePreview();
 
@@ -179,14 +179,24 @@
 
 			if( jQuery('#inbound-shortcodes-preview').size() > 0 ) {
 
-				var	shortcode = jQuery('#_fresh_shortcodes_newoutput').html(),
+				var	shortcode = jQuery('#_inbound_shortcodes_newoutput').html(),
 					iframe = jQuery('#inbound-shortcodes-preview'),
 					theiframeSrc = iframe.attr('src'),
 					thesiframeSrc = theiframeSrc.split('preview.php'),
+					shortcode_name = jQuery("#inbound_current_shortcode").val(),
+					form_id = jQuery("#post_ID").val(),
 					iframeSrc = thesiframeSrc[0] + 'preview.php';
-
+				// Add form id to CPT preview
+				if ( shortcode_name === "insert_inbound_form_shortcode") {
+					if (typeof (inbound_forms) != "undefined" && inbound_forms !== null) {
+						var shortcode = shortcode.replace('[inbound_form', '[inbound_form id="'+form_id+'"');
+					}
+				}
+				if ( shortcode_name === "insert_styled_list_shortcode") {
+						var shortcode = shortcode.replace(/#/g, '');
+				}
 				// updates the src value
-				iframe.attr( 'src', iframeSrc + '?sc=' + InboundShortcodes.htmlEncode(shortcode) );
+				iframe.attr( 'src', iframeSrc + '?post='+inbound_shortcodes.form_id+'&sc=' + InboundShortcodes.htmlEncode(shortcode) );
 
 				//console.log('updated iframe');
 				// update the height
@@ -202,7 +212,7 @@
 			var	ajaxCont = jQuery('#TB_ajaxContent'),
 				tbWindow = jQuery('#TB_window'),
 				freshthemesPopup = jQuery('#inbound-shortcodes-popup'),
-				no_preview = (jQuery('#_fresh_shortcodes_preview').text() == 'false') ? true : false;
+				no_preview = (jQuery('#_inbound_shortcodes_preview').text() == 'false') ? true : false;
 			var width = jQuery(window).width();
 			var H = jQuery(window).height();
 			var W = ( 1720 < width ) ? 1720 : width;
@@ -267,7 +277,7 @@
 									if (confirm('Are you sure you want to overwrite the current form you are building? Selecting another form template will clear your current fields/settings')) {
 				            			jQuery(".child-clone-rows.ui-sortable").html(form_insert);
 				        			} else {
-				        				jQuery("#inbound_shortcode_insert_default").val($.data(this, 'current')); // added parenthesis (edit)
+				        				jQuery("#inbound_shortcode_insert_default").val(jQuery.data(this, 'current')); // added parenthesis (edit)
 			            				return false;
 				        			}
 		        				} else {
@@ -304,22 +314,22 @@
 							            if (jQuery('.child-clone-row').length != "1") {
 											if (confirm('Are you sure you want to overwrite the current form you are building? Selecting another form template will clear your current fields/settings')) {
 						            			  jQuery(".child-clone-rows.ui-sortable").html(form_insert);
-						            			  jQuery("#_fresh_shortcodes_newoutput").text(obj.inbound_shortcode);
+						            			  jQuery("#_inbound_shortcodes_newoutput").text(obj.inbound_shortcode);
 						            			  	InboundShortcodes.generate();
 													InboundShortcodes.generateChild();
 						        			} else {
-						        				jQuery(this).val($.data(this, 'current')); // added parenthesis (edit)
+						        				jQuery(this).val(jQuery.data(this, 'current')); // added parenthesis (edit)
 					            				return false;
 						        			}
 
 				        				} else {
 				        				  jQuery(".child-clone-rows.ui-sortable").html(form_insert);
-				        				  jQuery("#_fresh_shortcodes_newoutput").text(obj.inbound_shortcode);
+				        				  jQuery("#_inbound_shortcodes_newoutput").text(obj.inbound_shortcode);
 				        				  InboundShortcodes.generate();
 										  InboundShortcodes.generateChild();
 				        				}
 
-						            	$.data(this, 'current', jQuery(this).val());
+						            	jQuery.data(this, 'current', jQuery(this).val());
 						                /*var worked = '<span class="lp-success-message">Form Changed</span>';
 						                var s_message = jQuery(self).parent();
 						                jQuery(worked).appendTo(s_message); */
@@ -343,8 +353,8 @@
 			var	InboundShortcodes = this,
 				popup = jQuery('#inbound-shortcodes-popup'),
 				form = jQuery('#inbound-shortcodes-form', popup),
-				output = jQuery('#_fresh_shortcodes_output', form).text(),
-				popupType = jQuery('#_fresh_shortcodes_popup', form).text(),
+				output = jQuery('#_inbound_shortcodes_output', form).text(),
+				popupType = jQuery('#_inbound_shortcodes_popup', form).text(),
 				shortcode_name = jQuery("#inbound_current_shortcode").val(),
 				newoutput = '';
 
@@ -356,10 +366,10 @@
 			InboundShortcodes.generate();
 			InboundShortcodes.children();
 			InboundShortcodes.generateChild();
-
+			jQuery("#inbound-shortcodes-popup").addClass('shortcode-' + shortcode_name);
 			// Conditional Form Only extras
 			if ( shortcode_name === "insert_inbound_form_shortcode") {
-				jQuery(".inbound_shortcode_child_tbody, .main-design-settings").hide();
+				jQuery("#inbound_insert_shortcode_two, .inbound_shortcode_child_tbody, .main-design-settings").hide();
 				jQuery("#inbound_save_form").show();
 				jQuery("#inbound_insert_shortcode_two").removeClass('button-primary').addClass('button').text('Insert Full Shortcode')
 				jQuery('.step-item').on('click', function() {
@@ -373,10 +383,64 @@
 
 					InboundShortcodes.update_fields();
 				});
+				jQuery("body").on('click', '.switch-to-form-insert', function () {
+					tb_show( inbound_load.pop_title, inbound_load.image_dir + 'popup.php?popup=quick-forms&width=' + 900);
+				 });
 			}
+			if (shortcode_name === 'insert_button_shortcode' || shortcode_name === 'insert_styled_list_shortcode'){
 
+				function format(state) {
+				           if (!state.id) return state.text; // optgroup
+				           return "<i class='icon-" + state.id.toLowerCase() + " inbound-icon-padding'></i>" + state.text + '';
+				       }
+				       jQuery("#inbound_shortcode_icon").select2({
+				       	placeholder: "Select an icon for the button",
+				       	allowClear: true,
+				           formatResult: format,
+				           formatSelection: format,
+				           escapeMarkup: function(m) { return m; }
+				       });
+			}
+			if (shortcode_name === 'insert_styled_list_shortcode'){
+
+
+				setTimeout(function() {
+					//jQuery("#inbound_shortcode_icon").val("ok-circle").select2();
+				             //jQuery("#inbound_shortcode_icon").select2("open");
+				        }, 500);
+			}
+			if (shortcode_name === 'insert_call_to_action'){
+
+
+				       jQuery("#insert_inbound_cta").select2({
+				       		placeholder: "Select one or more calls to action to rotate through",
+
+				       });
+				       setTimeout(function() {
+				                     jQuery("#insert_inbound_cta").select2("open");
+				               }, 500);
+				       jQuery("body").on('change', '#insert_inbound_cta', function () {
+				       	var cta_ids = jQuery("#insert_inbound_cta").select2("data");
+				       	var cta_val = jQuery("#insert_inbound_cta").select2("val");
+				       //	alert("Selected value is: "+jQuery("#insert_inbound_cta").select2("data"));
+				       	var cta_id_array = new Array();
+
+				       	jQuery.each(cta_ids, function(key,valueObj){
+
+				       	    var the_id = valueObj['id'];
+				       	    cta_id_array.push(the_id);
+				       	});
+
+				       	console.log(cta_id_array);
+				       	var final_ids = cta_id_array.join();
+				       	setTimeout(function() {
+				       	jQuery("#_inbound_shortcodes_newoutput").html('[cta id="'+final_ids+'"]');
+				       	        }, 1000);
+				           });
+			}
 			if ( shortcode_name === "quick_insert_inbound_form_shortcode") {
 				jQuery("#inbound_insert_shortcode_two").addClass('quick-forms');
+
 				jQuery("body").on('click', '.switch-to-form-builder', function () {
 					tb_show( inbound_load.pop_title, inbound_load.image_dir + 'popup.php?popup=forms&width=' + 900);
 				 });
@@ -389,6 +453,7 @@
 						jQuery(this).text('Choose Form');
 					}
 				});
+				row_add_callback();
 				// Insert default forms
 				jQuery('body').on('change', '#inbound_shortcode_insert_default', function () {
 					var val = jQuery(this).val();
@@ -402,25 +467,28 @@
 
 			// Save Shortcode Function
 			var shortcode_nonce_val = inbound_shortcodes.inbound_shortcode_nonce; // NEED CORRECT NONCE
-			jQuery("body").on('click', '#inbound_save_form', function () {
-			  		console.log('Save clicked');
-			        // if data exists save it
-			        //var this_meta_id = jQuery(this).attr("id");
-			        // run on form custom post type only. ID fix
-
+			jQuery("body").on('mousedown', '#inbound_save_form', function () {
 
 			        var post_id = jQuery("#post_ID").val();
 			      	var form_settings = jQuery(".child-clone-rows.ui-sortable").html();
 			        var shortcode_name = jQuery("#inbound_current_shortcode").val();
-			        var shortcode_value = jQuery('#_fresh_shortcodes_newoutput').html();
+			        var shortcode_value = jQuery('#_inbound_shortcodes_newoutput').html();
 					var form_name = jQuery("#inbound_shortcode_form_name").val();
 					var form_values = jQuery("#inbound-shortcodes-form").serialize();
+					var notify_email = jQuery("#inbound_shortcode_notify").val();
 					var field_count = jQuery('.child-clone-row').length;
 					var redirect_value = jQuery('#inbound_shortcode_redirect').val();
+
 					if (typeof (inbound_forms) != "undefined" && inbound_forms !== null) {
 						var post_type = 'inbound-forms';
+						var send_email = jQuery("#inbound_email_send_notification").val();
+						var send_email_subject = jQuery("#inbound_confirmation_subject").val();
+						var email_contents = jQuery("#content_ifr").contents().find('body').html(); // email responder
 					} else {
 						var post_type = 'normal';
+						var send_email = 'off';
+						var send_email_subject = '';
+						var email_contents = ''; // if post created on other post
 					}
 					if ( shortcode_name === "insert_inbound_form_shortcode" && form_name == "") {
 						jQuery(".step-item.first").click();
@@ -437,9 +505,13 @@
 			                shortcode: shortcode_value,
 			                field_count: field_count,
 			                form_values: form_values,
+			                notify_email: notify_email,
+			                send_email: send_email,
+			                send_subject: send_email_subject,
 			               	form_settings: form_settings,
 			                post_id: post_id,
 			                post_type: post_type,
+			                email_contents: email_contents,
 			                redirect_value: redirect_value,
 			                nonce: shortcode_nonce_val
 			            },
@@ -471,6 +543,10 @@
 			                var final_short_form = '[inbound_forms id="' + form_id + '" name="'+final_form_name+'"]';
 			                if (typeof (inbound_forms) != "undefined" && inbound_forms !== null) {
 			                   jQuery(self).text('Form Updated').css('font-size', '25px');
+			                   var draft = jQuery("#hidden_post_status").val();
+			                   if (draft === 'draft') {
+			                   	window.location.href = window.location.origin + '/wp-admin/post.php?post=' + form_id + '&action=edit'
+			                   }
 			                   setTimeout(function() {
 			                            jQuery(self).text('Save Form').css('font-size', '17px');
 			                           }, 5000);
@@ -499,14 +575,23 @@
 			});
 
 			jQuery('.inbound-shortcodes-input', form).on('change, keyup', function () {
+				var exclude_input = jQuery(this).parent().parent().parent().parent().hasClass('exclude-from-refresh');
+				console.log('yes');
+				console.log(exclude_input);
+				if (exclude_input != 'true'){
 				InboundShortcodes.generate(); // runs refresh
 				InboundShortcodes.generateChild();
+			}
 				var update_dom = jQuery(this).val();
 				jQuery(this).attr('value', update_dom);
 			});
 
-			jQuery('body').on('change', 'input[type="checkbox"], input[type="radio"], select', function () {
-				InboundShortcodes.generateChild(); // runs refresh for fields
+			jQuery('body').on('change', 'input[type="checkbox"], input[type="radio"], input[type="color"], select', function () {
+				var exclude_input = jQuery(this).parent().parent().parent().parent().hasClass('exclude-from-refresh');
+				if (exclude_input != 'true'){
+					InboundShortcodes.generateChild(); // runs refresh for fields
+				}
+
 				var input_type = jQuery(this).attr('type');
 				var update_dom = jQuery(this).val();
 				if (input_type === "checkbox") {
@@ -544,23 +629,21 @@
 
     		});
 
-
 			jQuery('body').on('change', 'select', function () {
 				var find_this = jQuery(this).attr('data-field-name'),
 				this_val = jQuery(this).val();
-				jQuery(".dynamic-visable-on").hide();
-				jQuery('.reveal-' + this_val).removeClass('inbound-hidden-row').show().addClass('dynamic-visable-on');
+				var parent_el = jQuery(this).parent().parent().parent();
+				jQuery(parent_el).find(".dynamic-visable-on").hide();
+
+				jQuery(parent_el).find('.reveal-' + this_val).removeClass('inbound-hidden-row').show().addClass('dynamic-visable-on');
 			});
-			
-			jQuery("body").on('click', '.inbound-shortcodes-insert-two', function () {
-				jQuery('.inbound-shortcodes-insert').click();
-    		});
-			
+
     		jQuery("body").on('click', '.inbound-shortcodes-insert-cancel', function () {
     			window.tb_remove();
     		});
-			
-			jQuery('.inbound-shortcodes-insert', form).click(function() {
+
+		},
+		insert_shortcode: function() {
 				var shortcode_name = jQuery("#inbound_current_shortcode").val();
 				var form_name = jQuery("#inbound_shortcode_form_name").val();
 				if ( shortcode_name === "insert_inbound_form_shortcode" && form_name == "") {
@@ -569,13 +652,16 @@
 					jQuery("#inbound_shortcode_form_name").addClass('need-value').focus();
 				} else {
 					if(window.tinyMCE) {
-							var insert_val = jQuery('#_fresh_shortcodes_newoutput', form).html();
+							var insert_val = jQuery('#_inbound_shortcodes_newoutput').html();
 
-							if ( shortcode_name === "insert_inbound_form_shortcode") {
+							if ( shortcode_name === "insert_inbound_form_shortcode" || shortcode_name === "insert_styled_list_shortcode") {
 							//var fixed_insert_val = insert_val.replace(/\[.*?(.*?)\]/g, "[$1]<br class='inbr'/>"); // for linebreaks in editor
 							var fixed_insert_val = insert_val.replace(/\[.*?(.*?)\]/g, "<p>[$1]</p>"); // cleans output in editor
 							output_cleaned = fixed_insert_val.replace(/[a-zA-Z0-9_]*=""/g, ""); // remove empty shortcode fields
 							//output_cleaned = "<!-- Beginning of Form Embed -->" + output_cleaned + "<!-- End of Form Embed -->";
+							} else if (shortcode_name === "insert_column_shortcode") {
+								var output_cleaned = insert_val;
+								//output_cleaned = fixed_insert_val.replace(/\[\/(.*?)\]/g, "[$1]<br class='inbr'/>");
 							} else {
 							var fixed_insert_val = insert_val;
 							output_cleaned = fixed_insert_val.replace(/[a-zA-Z0-9_]*=""/g, ""); // remove empty shortcode fields
@@ -584,8 +670,7 @@
 							tb_remove();
 					}
 				}
-			});
-		},
+			},
 
 		htmlEncode: function(html) {
 			return jQuery('<div/>').text(html).html();
@@ -596,6 +681,9 @@
 	jQuery(document).ready( function() {
 		jQuery('#inbound-shortcodes-popup').livequery( function() {
 			InboundShortcodes.load();
+		});
+		jQuery("body").on('click', '.inbound-shortcodes-insert-two', function () {
+			InboundShortcodes.insert_shortcode();
 		});
 	});
 

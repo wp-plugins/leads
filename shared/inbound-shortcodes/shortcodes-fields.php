@@ -43,9 +43,10 @@ class InboundShortcodesFields {
 /* 	Show Fields
  * 	----------------------------------------------------- */
 	function show() {
+
 		global $shortcodes_config;
 
-		$fields = $shortcodes_config;
+		$fields = apply_filters('inboundnow_forms_settings', $shortcodes_config);
 
 		if( isset( $fields[$this->popup]['child'] ) )
 			$this->has_child = true;
@@ -56,16 +57,17 @@ class InboundShortcodesFields {
 			$this->shortcode = $fields[$this->popup]['shortcode'];
 			$this->popup_title = $fields[$this->popup]['popup_title'];
 
-			$this->append_output('<div id="_fresh_shortcodes_output" class="hidden">'.$this->shortcode.'</div>');
-			$this->append_output('<div id="_fresh_shortcodes_popup" class="hidden">'.$this->popup.'</div>');
+			$this->append_output('<div id="_inbound_shortcodes_output" class="hidden">'.$this->shortcode.'</div>');
+			$this->append_output('<div id="_inbound_shortcodes_popup" class="hidden">'.$this->popup.'</div>');
 
 			if( isset( $fields[$this->popup]['no_preview'] ) && $fields[$this->popup]['no_preview'] ) {
-				$this->append_output( "\n" . '<div id="_fresh_shortcodes_preview" class="hidden">false</div>' );
+				$this->append_output( "\n" . '<div id="_inbound_shortcodes_preview" class="hidden">false</div>' );
 				$this->no_preview = true;
 			}
 			$count = 0;
 			foreach( $this->options as $key => $option ) {
 				$first = $key;
+
 				$key = 'inbound_shortcode_' . $key;
 				$uniquekey = 'inbound_shortcode_' . $first . "_" . $count;
 				$name = ( isset($option['name'])) ? $option['name'] : '';
@@ -128,7 +130,8 @@ class InboundShortcodesFields {
 						$output  = $row_start;
 						$output .= '<label for="'.$key.'">';
 						$output .= '<input type="checkbox" class="inbound-shortcodes-input inbound-shortcodes-checkbox" name="'.$key.'" id="'.$key.'"'. checked( $std, 1, false) .' />';
-						$output .= $desc .'</label>';
+						$output .= '&nbsp;&nbsp;<span class="inbound-shortcodes-form-desc">';
+						$output .= $desc .'</span></label>';
 						$output .= $row_end;
 						$this->append_output($output);
 						break;
@@ -137,20 +140,28 @@ class InboundShortcodesFields {
 						$output .= $row_end;
 						$this->append_output($output);
 						break;
+					case 'colorpicker':
+						$output  = $row_start;
+						$output .= '<input type="color" class="inbound-shortcodes-input '.$key.'" name="'. $uniquekey .'" id="'. $key .'" value="'. $std .'" size="40" placeholder="'.$placeholder.'" />';
+						$output .= $row_end;
+						$this->append_output($output);
+						break;
+
 					case 'cta' :
 					            $args = array('post_type' => 'wp-call-to-action', 'numberposts' => -1);
 					            $cta_post_type = get_posts($args);
 					    		$output  = $row_start;
-
+					    		$output .= '<select multiple name="insert_inbound_cta[]"" id="insert_inbound_cta">';
 					            foreach ($cta_post_type as $cta) {
 					                //setup_postdata($cta);
 					                $this_id = $cta->ID;
 					                $post_title = $cta->post_title;
 									$this_link = get_permalink( $this_id );
 									$this_link = preg_replace('/\?.*/', '', $this_link);
-					                $output .= '<input class="checkbox" type="checkbox" value="" name="" id="" />' . $post_title . '<span id="view-cta-in-new-window">'.$this_link.'</span><br>';
+					                //$output .= '<input class="checkbox" type="checkbox" value="" name="" id="" />' . $post_title . '<span id="view-cta-in-new-window">'.$this_link.'</span><br>';
+					                $output .= '<option value="'.$this_id.'" rel="" >'.$post_title.'</option>';
 					           	}
-					        $output .= '</div></div>';
+					        $output .= '</select></div></div>';
 					        $output .= $row_end;
 					 		$this->append_output($output);
 					    	break;
@@ -167,7 +178,7 @@ class InboundShortcodesFields {
 				$parent_row_start .= '<tr class="form-row has-child">';
 				$parent_row_start .= '<td><a href="#" id="form-child-add" class="button button-secondary">'.$fields[$this->popup]['child']['clone'].'</a>';
 				$parent_row_start .= '<div class="child-clone-rows">';
-				$parent_row_start .= '<div id="_fresh_shortcodes_child_output" class="hidden">'.$this->child_shortcode.'</div>';
+				$parent_row_start .= '<div id="_inbound_shortcodes_child_output" class="hidden">'.$this->child_shortcode.'</div>';
 				$parent_row_start .= '<div id="field_instructions">Drag and drop fields to reorder.</div>';
 				$parent_row_start .= '<div class="child-clone-row"><span class="form-field-row-number">1</span><a  class="child-clone-row-remove child-options-toggles">Remove</a><a  href="#" class="child-clone-row-shrink child-options-toggles ">Minimize</a><a  href="#" class="child-clone-row-exact child-options-toggles ">Clone</a>';
 				$parent_row_start .= '<ul class="child-clone-row-form">';

@@ -1,12 +1,7 @@
 <?php
 /**
 *   Video Shortcode
-*   ---------------------------------------------------------------------------
-*   @author 	: Rifki A.G
-*   @copyright	: Copyright (c) 2013, FreshThemes
-*                 http://www.freshthemes.net
-*                 http://www.rifki.net
-*   --------------------------------------------------------------------------- */
+*/
 
 /* 	Shortcode generator config
  * 	----------------------------------------------------- */
@@ -26,12 +21,12 @@
 
 /* 	Add shortcode
  * 	----------------------------------------------------- */
-	add_shortcode('video', 'fresh_shortcode_video');
+	add_shortcode('video', 'inbound_shortcode_video');
 
-	function fresh_shortcode_video( $atts, $content = null ) {
+	function inbound_shortcode_video( $atts, $content = null ) {
 		extract(shortcode_atts(array(
 			'url' => ''
 		), $atts));
-		
+
 		return '<div class="video-container">'. wp_oembed_get( $url ) .'</div>';
 	}

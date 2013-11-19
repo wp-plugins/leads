@@ -4,10 +4,11 @@ Plugin Name: Leads
 Plugin URI: http://www.inboundnow.com/landing-pages/downloads/lead-management/
 Description: Wordpress Lead Manager provides CRM (Customer Relationship Management) applications for WordPress Landing Page plugin. Lead Manager Plugin provides a record management interface for viewing, editing, and exporting lead data collected by Landing Page Plugin.
 Author: Hudson Atwell(@atwellpub), David Wells (@inboundnow)
-Version: 1.1.1
+Version: 1.2.0
 Author URI: http://www.inboundnow.com/landing-pages/
 */
 
+define('LEADS_CURRENT_VERSION', '1.2.0' );
 define('WPL_URL', WP_PLUGIN_URL."/".dirname( plugin_basename( __FILE__ ) ) );
 define('WPL_PATH', WP_PLUGIN_DIR."/".dirname( plugin_basename( __FILE__ ) ) );
 define('WPL_CORE', plugin_basename( __FILE__ ) );
@@ -160,6 +161,7 @@ function wpleads_enqueuescripts_header()
 			}
 
 		wp_enqueue_script( 'funnel-tracking' , WPL_URL . '/js/wpl.funnel-tracking.js', array( 'jquery','jquery-cookie'));
+		//wp_enqueue_script( 'selectron-js' , WPL_URL . '/shared/js/selectron.js', array( 'jquery','jquery-cookie')); // coming soon for field mapping
 		wp_enqueue_script( 'store-lead-ajax' , WPL_URL . '/shared/tracking/js/store.lead.ajax.js', array( 'jquery','jquery-cookie'));
 		wp_localize_script( 'store-lead-ajax' , 'inbound_ajax', array( 'admin_url' => admin_url( 'admin-ajax.php' ), 'post_id' => $final_page_id, 'post_type' => $post_type));
 		wp_localize_script( 'funnel-tracking' , 'wplft', array( 'post_id' => $final_page_id, 'ip_address' => $ip_address, 'wp_lead_data' => $lead_data_array, 'admin_url' => admin_url( 'admin-ajax.php' )));
@@ -326,9 +328,9 @@ if (is_admin())
 		//echo 1; exit;
 		if (current_user_can('manage_options'))
 		{
-			add_submenu_page('edit.php?post_type=wp-lead', 'Forms', 'Forms', 'manage_options', 'inbound-forms-redirect',100);
+			add_submenu_page('edit.php?post_type=wp-lead', 'Forms', 'Create Forms', 'manage_options', 'inbound-forms-redirect',100);
 
-			add_submenu_page('edit.php?post_type=wp-lead', 'Settings', 'Settings', 'manage_options', 'wpleads_global_settings','wpleads_display_global_settings');
+			add_submenu_page('edit.php?post_type=wp-lead', 'Settings', 'Global Settings', 'manage_options', 'wpleads_global_settings','wpleads_display_global_settings');
 
 		}
 	}

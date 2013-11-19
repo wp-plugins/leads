@@ -1,12 +1,7 @@
 <?php
 /**
 *   Google Map Shortcode
-*   ---------------------------------------------------------------------------
-*   @author 	: Rifki A.G
-*   @copyright	: Copyright (c) 2013, FreshThemes
-*                 http://www.freshthemes.net
-*                 http://www.rifki.net
-*   --------------------------------------------------------------------------- */
+*/
 
 /* 	Shortcode generator config
  * 	----------------------------------------------------- */
@@ -90,10 +85,10 @@
 
 /* 	Add shortcode
  * 	----------------------------------------------------- */
-	add_shortcode('gmap', 'fresh_shortcode_gmap');
+	add_shortcode('gmap', 'inbound_shortcode_gmap');
 
-	function fresh_shortcode_gmap( $atts, $content = null ) {
-		
+	function inbound_shortcode_gmap( $atts, $content = null ) {
+
 		extract(shortcode_atts(array(
 			'type' => 'ROADMAP',
 			'address' => '',
@@ -155,6 +150,6 @@
 		})(jQuery);
 		</script>';
 		endif;
-		
+
 		return $out;
 	}

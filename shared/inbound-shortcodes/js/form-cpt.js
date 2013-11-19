@@ -11,6 +11,32 @@ jQuery(document).ready(function($) {
    		var this_val = jQuery(this).val();
    		jQuery("#inbound_shortcode_form_name").val(this_val);
     });
+    var view_leads_list = '<span id="view-leads-list" class="button view-leads-list">View Conversions</span>';
+    var view_email_response = '<span id="view-email-response" class="button">Set Email Response</span>';
+    jQuery('.add-new-h2').after(view_leads_list);
+    jQuery('#view-leads-list').after(view_email_response);
+
+    jQuery("body").on('click', '#view-email-response', function () {
+        jQuery('#inbound-shortcodes-popup, #form-leads-list, #title').hide();
+        jQuery('#postdivrich, #inbound-email-response').show();
+    });
+
+    jQuery("body").on('click', '#view-leads-list', function () {
+        jQuery(this).text('Switch Back to Form Editor');
+        jQuery(this).removeClass('view-leads-list');
+        jQuery("#inbound-shortcodes-popup, #postdivrich, #inbound-email-response").hide();
+        jQuery("#form-leads-list, #title").show();
+        jQuery(this).addClass('view-form-builder');
+    });
+
+    jQuery("body").on('click', '.view-form-builder', function () {
+        jQuery(this).removeClass('view-form-builder').addClass('view-leads-list');
+        jQuery(this).text('View Conversions');
+
+        jQuery("#form-leads-list").hide();
+        jQuery("#inbound-shortcodes-popup").show();
+    });
+
     jQuery("body").on('change keyup', '#inbound_shortcode_form_name', function () {
             jQuery("#title-prompt-text").hide();
     		var this_val = jQuery(this).val();
@@ -30,31 +56,46 @@ jQuery(document).ready(function($) {
     setTimeout(function() {
             jQuery("#inbound_shortcode_insert_default").val(form_toggle);
             InboundShortcodes.update_fields();
-                var SelectionData = jQuery("#cpt-form-serialize").text();
-                if (SelectionData != "") {
-
-                	jQuery.each(SelectionData.split('&'), function (index, elem) {
-                	   	var vals = elem.split('=');
-                	   	var $select_val = jQuery('select[name="'+vals[0]+'"]').attr('name');
-                	   	var $select = jQuery('select[name="'+vals[0]+'"]');
-                	   	var $input = jQuery('input[name="'+vals[0]+'"]'); // input vals
-                	   	var $textarea = jQuery('textarea[name="'+vals[0]+'"]'); // input vals
-                	   	var separator = '';
-                	   	/*if ($div.html().length > 0) {
-                	   		separator = ', ';
-                	   	}*/
-                	   	$input.val(decodeURIComponent(vals[1].replace(/\+/g, ' ')));
-                	   	if ($select_val != 'inbound_shortcode_insert_default'){
-                	   	$select.val(decodeURIComponent(vals[1].replace(/\+/g, ' ')));
-                	   	}
-                	   	$textarea.val(decodeURIComponent(vals[1].replace(/\+/g, ' ')));
-                	   });
-
-            	}
+            fill_form_fields();
      }, 1000);
 
+    setTimeout(function() {
 
-    if (post_status === 'draft' && post_title != "") {
+            fill_form_fields();
+     }, 2000);
+
+    function fill_form_fields(){
+            var SelectionData = jQuery("#cpt-form-serialize").text();
+            if (SelectionData != "") {
+
+                jQuery.each(SelectionData.split('&'), function (index, elem) {
+                    var vals = elem.split('=');
+
+                    var $select_val = jQuery('select[name="'+vals[0]+'"]').attr('name');
+                    var $select = jQuery('select[name="'+vals[0]+'"]');
+                    var $input = jQuery('input[name="'+vals[0]+'"]'); // input vals
+                    var input_type = jQuery('input[name="'+vals[0]+'"]').attr('type');
+                    var $checkbox = jQuery('input[name="'+vals[0]+'"]'); // input vals
+                    var $textarea = jQuery('textarea[name="'+vals[0]+'"]'); // input vals
+                    var separator = '';
+                    /*if ($div.html().length > 0) {
+                        separator = ', ';
+                    }*/
+                    //console.log(input_type);
+                    $input.val(decodeURIComponent(vals[1].replace(/\+/g, ' ')));
+                    if (input_type === 'checkbox' && vals[1] === 'on'){
+                        $input.prop( "checked", true );
+                    }
+                    if ($select_val != 'inbound_shortcode_insert_default'){
+                    $select.val(decodeURIComponent(vals[1].replace(/\+/g, ' ')));
+                    }
+                    $textarea.val(decodeURIComponent(vals[1].replace(/\+/g, ' ')));
+                   });
+
+            }
+    }
+
+    if (post_status === 'draft' && post_title != "" || post_status ==='pending' && post_title != "" ) {
     	// run auto publish ajax
     	        jQuery.ajax({
     	            type: 'POST',
@@ -67,7 +108,7 @@ jQuery(document).ready(function($) {
     	            },
 
     	            success: function (data) {
-    	                alert("Auto Published");
+    	               console.log("This Form has been auto published");
     	            },
 
     	            error: function (MLHttpRequest, textStatus, errorThrown) {

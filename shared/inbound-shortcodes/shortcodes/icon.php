@@ -1,12 +1,7 @@
 <?php
 /**
 *   Icon Shortcode
-*   ---------------------------------------------------------------------------
-*   @author 	: Rifki A.G
-*   @copyright	: Copyright (c) 2013, FreshThemes
-*                 http://www.freshthemes.net
-*                 http://www.rifki.net
-*   --------------------------------------------------------------------------- */
+*/
 
 /* 	Shortcode generator config
  * 	----------------------------------------------------- */
@@ -51,14 +46,14 @@
 
 /* 	Add shortcode
  * 	----------------------------------------------------- */
-	add_shortcode('icon', 'fresh_shortcode_icon');
+	add_shortcode('icon', 'inbound_shortcode_icon');
 
-	function fresh_shortcode_icon( $atts, $content = null ) {
+	function inbound_shortcode_icon( $atts, $content = null ) {
 		extract(shortcode_atts(array(
 			'icon' => '',
 			'size' => '',
 			'style' => ''
 		), $atts));
-		
+
 		return '<i class="icon-'. $icon .' icon-'. $size .' icon-'. $style .'"></i>';
 	}

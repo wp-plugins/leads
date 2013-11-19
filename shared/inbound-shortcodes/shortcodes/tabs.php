@@ -1,12 +1,7 @@
 <?php
 /**
 *   Tabs Shortcode
-*   ---------------------------------------------------------------------------
-*   @author 	: Rifki A.G
-*   @copyright	: Copyright (c) 2013, FreshThemes
-*                 http://www.freshthemes.net
-*                 http://www.rifki.net
-*   --------------------------------------------------------------------------- */
+*/
 
 /* 	Shortcode generator config
  * 	----------------------------------------------------- */
@@ -17,7 +12,7 @@
 				'name' => __('Heading', INBOUND_LABEL),
 				'desc' => __('Enter the heading text', INBOUND_LABEL),
 				'type' => 'text',
-				'std' => '' 
+				'std' => ''
 			)
 		),
 		'child' => array(
@@ -95,20 +90,20 @@
 
 /* 	Add shortcode
  * 	----------------------------------------------------- */
-	add_shortcode('tabs', 'fresh_shortcode_tabs');
-	
-	function fresh_shortcode_tabs( $atts, $content = null ) {
+	add_shortcode('tabs', 'inbound_shortcode_tabs');
+
+	function inbound_shortcode_tabs( $atts, $content = null ) {
 		extract(shortcode_atts(array(
 			'heading' => ''
 		), $atts));
 
 		$out = '';
-	
+
 		if (!preg_match_all("/(.?)\[(tab)\b(.*?)(?:(\/))?\](?:(.+?)\[\/tab\])?(.?)/s", $content, $matches)) {
 			return do_shortcode($content);
-		} 
+		}
 		else {
-			
+
 			for($i = 0; $i < count($matches[0]); $i++) {
 				$matches[3][$i] = shortcode_parse_atts($matches[3][$i]);
 			}
@@ -123,14 +118,14 @@
 					$out .= '<li><a id="tab_'.$i.'_nav" title="'.$matches[3][$i]['title'].'" href="#tab_'.$i.'">'.$icon.'<span>'.$matches[3][$i]['title'].'<span></a></li>';
 				}
 				$out .= '</ul>';
-			
+
 				$out .= '<div class="tabs">';
 				for($i = 0; $i < count($matches[0]); $i++) {
 					$out .= '<div id="tab_'.$i.'">' . do_shortcode(trim($matches[5][$i])) .'</div>';
 				}
 				$out .= '</div>';
 			$out .= '</div>';
-			
+
 			return $out;
 		}
 	}

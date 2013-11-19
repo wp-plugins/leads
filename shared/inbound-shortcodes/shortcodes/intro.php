@@ -1,12 +1,7 @@
 <?php
 /**
 *   Intro Shortcode
-*   ---------------------------------------------------------------------------
-*   @author 	: Rifki A.G
-*   @copyright	: Copyright (c) 2013, FreshThemes
-*                 http://www.freshthemes.net
-*                 http://www.rifki.net
-*   --------------------------------------------------------------------------- */
+*/
 
 /* 	Shortcode generator config
  * 	----------------------------------------------------- */
@@ -80,9 +75,9 @@
 
 /* 	Add shortcode
  * 	----------------------------------------------------- */
-	add_shortcode('intro', 'fresh_shortcode_intro');
+	add_shortcode('intro', 'inbound_shortcode_intro');
 
-	function fresh_shortcode_intro( $atts, $content = null ) {
+	function inbound_shortcode_intro( $atts, $content = null ) {
 		extract(shortcode_atts(array(
 			'title' => '',
 			'alignment' => ''

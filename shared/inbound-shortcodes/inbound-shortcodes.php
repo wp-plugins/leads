@@ -28,6 +28,7 @@ require_once( 'shortcodes-includes.php' );
 if (!class_exists('InboundShortcodes')) {
 class InboundShortcodes {
   static $add_script;
+
 /*  Contruct
  *  --------------------------------------------------------- */
   static function init() {
@@ -35,6 +36,7 @@ class InboundShortcodes {
     add_action('admin_enqueue_scripts', array( __CLASS__, 'loads' ));
     add_action('init', array( __CLASS__, 'shortcodes_tinymce' ));
     add_action( 'wp_enqueue_scripts',  array(__CLASS__, 'frontend_loads')); // load styles
+    add_shortcode('list', array(__CLASS__, 'inbound_shortcode_list'));
   }
 
 /*  Loads
@@ -46,31 +48,38 @@ class InboundShortcodes {
       wp_enqueue_script('jquery-ui-sortable' );
       wp_enqueue_script('inbound-shortcodes-plugins', INBOUND_FORMS . 'js/shortcodes-plugins.js');
       wp_enqueue_script('inbound-shortcodes', INBOUND_FORMS . 'js/shortcodes.js');
-      wp_localize_script( 'inbound-shortcodes', 'inbound_shortcodes', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'inbound_shortcode_nonce' => wp_create_nonce('inbound-shortcode-nonce') ) );
+      $form_id = (isset($_GET['post'])) ? $_GET['post'] : '';
+      wp_localize_script( 'inbound-shortcodes', 'inbound_shortcodes', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'inbound_shortcode_nonce' => wp_create_nonce('inbound-shortcode-nonce') , 'form_id' => $form_id ) );
+      wp_enqueue_script('selectjs', INBOUND_FORMS . '/js/select2.min.js');
+      wp_enqueue_style('selectjs', INBOUND_FORMS . '/css/select2.css');
+
       // Forms CPT only
-      if (  ( isset($post) && 'inbound-forms' == $post->post_type ) || ( isset($_GET['post_type']) && $_GET['post_type']=='inbound-forms' ) ) {
+      if (  ( isset($post) && 'inbound-forms' === $post->post_type ) || ( isset($_GET['post_type']) && $_GET['post_type']==='inbound-forms' ) ) {
          wp_enqueue_style('inbound-forms-css', INBOUND_FORMS . 'css/form-cpt.css');
          wp_enqueue_script('inbound-forms-cpt-js', INBOUND_FORMS . 'js/form-cpt.js');
          wp_localize_script( 'inbound-forms-cpt-js', 'inbound_forms', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'inbound_shortcode_nonce' => wp_create_nonce('inbound-shortcode-nonce'), 'form_cpt' => 'on' ) );
       }
-      // Check for active plugins and localize
-      $plugins_loaded = array();
-      if (is_plugin_active('landing-pages/landing-pages.php')) {
-      array_push($plugins_loaded, "landing-pages");
-      }
-      if (is_plugin_active('cta/wordpress-cta.php')) {
-      array_push($plugins_loaded, "cta");
-      }
-      if (is_plugin_active('leads/wordpress-leads.php')) {
-      array_push($plugins_loaded, "leads");
-      }
-      wp_localize_script( 'inbound-shortcodes', 'inbound_load', array( 'image_dir' => INBOUND_FORMS, 'inbound_plugins' => $plugins_loaded, 'pop_title' => 'Insert Shortcode' ));
-      if (isset($post)&&$post->post_type=='inbound-forms')
-      {
-      require_once( 'shortcodes-fields.php' );
-      add_action( 'admin_footer',  array(__CLASS__, 'inbound_forms_header_area'));
+		// Check for active plugins and localize
+		$plugins_loaded = array();
 
-      }
+		if (is_plugin_active('landing-pages/landing-pages.php')) {
+		  array_push($plugins_loaded, "landing-pages");
+		}
+
+		if (is_plugin_active('cta/wordpress-cta.php')) {
+		  array_push($plugins_loaded, "cta");
+		}
+		if (is_plugin_active('leads/wordpress-leads.php')) {
+			array_push($plugins_loaded, "leads");
+		}
+
+		wp_localize_script( 'inbound-shortcodes', 'inbound_load', array( 'image_dir' => INBOUND_FORMS, 'inbound_plugins' => $plugins_loaded, 'pop_title' => 'Insert Shortcode' ));
+
+		if (isset($post)&&$post->post_type=='inbound-forms')
+		{
+			require_once( 'shortcodes-fields.php' );
+			add_action( 'admin_footer',  array(__CLASS__, 'inbound_forms_header_area'));
+		}
 
       //add_action('admin_head', array( __CLASS__, 'shortcodes_admin_head' ));
     }
@@ -110,6 +119,62 @@ class InboundShortcodes {
     array_push( $buttons, "|", 'InboundShortcodesButton' );
     return $buttons;
   }
+  static function inbound_shortcode_list( $atts, $content = null){
+      extract(shortcode_atts(array(
+        'icon' => 'ok-sign',
+        'color' => '',
+        'font_size'=> '20',
+        'bottom_margin' => '5',
+        'icon_color' => "",
+        'text_color' => ""
+      ), $atts));
+      $final_text_color = "";
+      if ($text_color != "") {
+        $text_color = str_replace("#", "", $text_color);
+        $final_text_color = "color:#" . $text_color . ";";
+      }
+      $final_icon_color = "";
+      if ($icon_color != "") {
+        $icon_color = str_replace("#", "", $icon_color);
+        $final_icon_color = "color:#" . $icon_color . ";";
+      }
+      $font_size = str_replace("px", "", $font_size);
+      $bottom_margin = str_replace("px", "", $bottom_margin);
+      $icon_size = $font_size + 2;
+      $line_size = $font_size + 2;
+      if ($content === "(Insert Your Unordered List Here. Use the List insert button in the editor. Delete this text)") {
+        $content = "<ul>
+          <li>Sentence number 1</li>
+          <li>Sentence number 2</li>
+          <li>Sentence number 3</li>
+          </ul>";
+      }
+      return '<style type="text/css">
+          #inbound-list li {
+          '.$final_text_color.'
+          list-style: none;
+          font-weight: 500;
+          font-size: '.$font_size.'px;
+          vertical-align: top;
+          margin-bottom: '.$bottom_margin.'px;
+          }
+          #inbound-list li:before {
+          background: transparent;
+          border-radius: 50% 50% 50% 50%;
+          '.$final_icon_color.'
+          display: inline-block;
+          font-family: \'FontAwesome\';
+          font-size: '.$icon_size.'px;
+          line-height: '.$line_size.'px;
+          margin-right: 0.5em;
+          margin-top: 0;
+          text-align: center;
+          }
+          </style>
+          <div id="inbound-list" class="inbound-list list-icon-'.$icon.'">
+          '.do_shortcode($content).'
+          </div>';
+    }
 
   static function inbound_forms_header_area()
   {
@@ -126,11 +191,45 @@ class InboundShortcodes {
   <div id="entire-form-area">
   <div id="cpt-form-shortcode"><?php echo $popup;?></div>
   <div id="cpt-form-serialize"><?php echo $form_serialize;?></div>
-   <div id="short_shortcode_form">
-    Shortcode: <input type="text" class="regular-text code short-shortcode-input" readonly="readonly" id="shortcode" name="shortcode" value='[inbound_forms id="<?php echo $post_id;?>" name="<?php echo $post_title;?>"]'>
-   </div>
-      <div id="inbound-shortcodes-popup">
+  <div id="form-leads-list">
+    <h2>Form Conversions</h2>
+    <ol id="form-lead-ul">
+  <?php  $lead_conversion_list = get_post_meta( $post_id , 'lead_conversion_list', TRUE );
+                if ($lead_conversion_list)
+                {
+                    $lead_conversion_list = json_decode($lead_conversion_list,true);
+                    foreach ($lead_conversion_list as $key => $value) {
+                      echo '<li>'.$lead_conversion_list[$key]['email'].'</li>';
+                    }
 
+                } else {
+                  echo '<span id="no-conversions">No Conversions Yet!</span>';
+                } ?>
+   </ol>
+   </div>
+  <div id="inbound-email-response">
+  <h2>Set Email Response to Send to the person filling out the form</h2>
+  <?php
+  $values = get_post_custom( $post->ID );
+  $selected = isset( $values['inbound_email_send_notification'] ) ? esc_attr( $values['inbound_email_send_notification'][0] ) : "";
+  $email_subject = get_post_meta( $post->ID, 'inbound_confirmation_subject', TRUE );
+  ?>
+  <div  style='display:block; overflow: auto;'>
+  <div id='email-confirm-settings'>
+      <label for="inbound_email_send">Toggle Email Confirmation</label>
+      <select name="inbound_email_send_notification" id="inbound_email_send_notification">
+          <option value="off" <?php selected( $selected, 'off' ); ?>>Off</option>
+          <option value="on" <?php selected( $selected, 'on' ); ?>>On</option>
+          <!-- Action hook here for custom lead status addon -->
+      </select>
+  <input type="text" name="inbound_confirmation_subject" placeholder="Email Subject Line" size="30" value="<?php echo $email_subject;?>" id="inbound_confirmation_subject" autocomplete="off">
+  </div>
+  </div>
+  </div>
+      <div id="inbound-shortcodes-popup">
+        <div id="short_shortcode_form">
+         Shortcode: <input type="text" class="regular-text code short-shortcode-input" readonly="readonly" id="shortcode" name="shortcode" value='[inbound_forms id="<?php echo $post_id;?>" name="<?php echo $post_title;?>"]'>
+        </div>
           <div id="inbound-shortcodes-wrap">
               <div id="inbound-shortcodes-form-wrap">
                   <div id="inbound-shortcodes-form-head">
@@ -153,12 +252,12 @@ class InboundShortcodes {
 
               <div id="inbound-shortcodes-preview-wrap">
                   <div id="inbound-shortcodes-preview-head">
-                      <?php _e('Shortcode Preview', INBOUND_LABEL); ?>
+                      <?php _e('Form Preview', INBOUND_LABEL); ?>
                   </div>
                   <?php if( $shortcode->no_preview ) : ?>
                       <div id="inbound-shortcodes-nopreview"><?php _e('Shortcode has no preview', INBOUND_LABEL); ?></div>
                   <?php else : ?>
-                      <iframe src='<?php echo INBOUND_FORMS; ?>preview.php?sc=' width="285" scrollbar='true' frameborder="0" id="inbound-shortcodes-preview"></iframe>
+                      <iframe src='<?php echo INBOUND_FORMS; ?>preview.php?sc=&post=<?php echo $_GET['post']; ?>' width="285" scrollbar='true' frameborder="0" id="inbound-shortcodes-preview"></iframe>
                   <?php endif; ?>
               </div>
               <div class="clear"></div>

@@ -7,7 +7,7 @@ if (isset($_GET['page'])&&($_GET['page']=='lp_global_settings'&&$_GET['page']=='
 	add_action('admin_init','wpl_manage_lead_enqueue');
 	function wpl_manage_lead_enqueue()
 	{		
-		wp_enqueue_style('wpl_manage_lead_css', WPL_URL . 'css/admin-global-settings.css');	
+		wp_enqueue_style('wpl_manage_lead_css', WPL_URL . '/css/wpl.admin-global-settings.css');	
 	}
 }
 
@@ -658,17 +658,20 @@ function wpleads_display_metabox_main() {
 			<div id="lead-conversions" class='lead-activity'>
 				<h2>Landing Page Conversions</h2>
 			
-			<?php $conversions = get_post_meta($post->ID,'wpleads_conversion_data', true);
-				  $conversions_array = json_decode($conversions, true);
+			<?php 
+			$conversions = get_post_meta($post->ID,'wpleads_conversion_data', true);
+			$conversions_array = json_decode($conversions, true);
            	//print_r($conversions);
             // Sort Array by date
 			 function leads_sort_array_datetime($a,$b){
 			        return strtotime($a['datetime'])<strtotime($b['datetime'])?1:-1;
 			};
-       		 uasort($conversions_array,'leads_sort_array_datetime'); // Date sort  
-       		$conversion_count = count($conversions_array);
-          	if ($conversions) 
+			
+			if (is_array($conversions)) 
           	{
+				uasort($conversions_array,'leads_sort_array_datetime'); // Date sort  
+				$conversion_count = count($conversions_array);
+          	
  				$i = $conversion_count;
 				foreach ($conversions_array as $key => $value)
 				{	
