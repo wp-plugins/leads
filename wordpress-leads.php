@@ -4,11 +4,11 @@ Plugin Name: Leads
 Plugin URI: http://www.inboundnow.com/landing-pages/downloads/lead-management/
 Description: Wordpress Lead Manager provides CRM (Customer Relationship Management) applications for WordPress Landing Page plugin. Lead Manager Plugin provides a record management interface for viewing, editing, and exporting lead data collected by Landing Page Plugin.
 Author: Hudson Atwell(@atwellpub), David Wells (@inboundnow)
-Version: 1.2.0
+Version: 1.2.1
 Author URI: http://www.inboundnow.com/landing-pages/
 */
 
-define('LEADS_CURRENT_VERSION', '1.2.0' );
+define('LEADS_CURRENT_VERSION', '1.2.1' );
 define('WPL_URL', WP_PLUGIN_URL."/".dirname( plugin_basename( __FILE__ ) ) );
 define('WPL_PATH', WP_PLUGIN_DIR."/".dirname( plugin_basename( __FILE__ ) ) );
 define('WPL_CORE', plugin_basename( __FILE__ ) );
@@ -160,11 +160,13 @@ function wpleads_enqueuescripts_header()
 			$final_page_id = $post_id;
 			}
 
-		wp_enqueue_script( 'funnel-tracking' , WPL_URL . '/js/wpl.funnel-tracking.js', array( 'jquery','jquery-cookie'));
+		wp_enqueue_script( 'funnel-tracking' , WPL_URL . '/shared/tracking/page-tracking.js', array( 'jquery','jquery-cookie'));
 		//wp_enqueue_script( 'selectron-js' , WPL_URL . '/shared/js/selectron.js', array( 'jquery','jquery-cookie')); // coming soon for field mapping
 		wp_enqueue_script( 'store-lead-ajax' , WPL_URL . '/shared/tracking/js/store.lead.ajax.js', array( 'jquery','jquery-cookie'));
 		wp_localize_script( 'store-lead-ajax' , 'inbound_ajax', array( 'admin_url' => admin_url( 'admin-ajax.php' ), 'post_id' => $final_page_id, 'post_type' => $post_type));
-		wp_localize_script( 'funnel-tracking' , 'wplft', array( 'post_id' => $final_page_id, 'ip_address' => $ip_address, 'wp_lead_data' => $lead_data_array, 'admin_url' => admin_url( 'admin-ajax.php' )));
+		$time = current_time( 'timestamp', 0 ); // Current wordpress time from settings
+		$wordpress_date_time = date("Y-m-d G:i:s T", $time);
+		wp_localize_script( 'funnel-tracking' , 'wplft', array( 'post_id' => $final_page_id, 'ip_address' => $ip_address, 'wp_lead_data' => $lead_data_array, 'admin_url' => admin_url( 'admin-ajax.php' ), 'track_time' => $wordpress_date_time));
 
 		// Load Lead Page View Tracking
 		$lead_page_view_tracking = get_option( 'page-view-tracking' , 1);
@@ -220,6 +222,7 @@ function wpleads_admin_enqueuescripts($hook)
 			wp_enqueue_script('tinysort', WPL_URL.'/js/jquery.tinysort.js', array('jquery'));
 			wp_enqueue_script('tag-cloud', WPL_URL.'/js/jquery.tagcloud.js', array('jquery'));
 			wp_localize_script( 'wpleads-edit', 'wp_lead_map', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ), 'wp_lead_map_nonce' => wp_create_nonce('wp-lead-map-nonce') ) );
+			wp_enqueue_script('jquery-cookie', WPL_URL . '/js/jquery.cookie.js', array( 'jquery' ));
 		}
 
 
