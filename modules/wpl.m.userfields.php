@@ -134,8 +134,7 @@ function wp_leads_set_lead_fields() {
  * priority: Where you want the fields placed. See https://github.com/inboundnow/leads/blob/master/modules/wpl.m.userfields.php#L7 for current weights
  * type: type of user area. 'text' or 'textarea'
  */
-
-
+/*
 add_filter('wp_leads_add_lead_field', 'custom_add_more_lead_fields', 10, 1);
 function custom_add_more_lead_fields($lead_fields) {
 
@@ -173,4 +172,5 @@ function custom_add_more_lead_fields($lead_fields) {
         return $lead_fields;
 
 }
+*/
 ?>
