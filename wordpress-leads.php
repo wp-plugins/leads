@@ -4,11 +4,11 @@ Plugin Name: Leads
 Plugin URI: http://www.inboundnow.com/landing-pages/downloads/lead-management/
 Description: Wordpress Lead Manager provides CRM (Customer Relationship Management) applications for WordPress Landing Page plugin. Lead Manager Plugin provides a record management interface for viewing, editing, and exporting lead data collected by Landing Page Plugin.
 Author: Hudson Atwell(@atwellpub), David Wells (@inboundnow)
-Version: 1.2.1
+Version: 1.2.2
 Author URI: http://www.inboundnow.com/landing-pages/
 */
 
-define('LEADS_CURRENT_VERSION', '1.2.1' );
+define('LEADS_CURRENT_VERSION', '1.2.2' );
 define('WPL_URL', WP_PLUGIN_URL."/".dirname( plugin_basename( __FILE__ ) ) );
 define('WPL_PATH', WP_PLUGIN_DIR."/".dirname( plugin_basename( __FILE__ ) ) );
 define('WPL_CORE', plugin_basename( __FILE__ ) );
@@ -212,7 +212,7 @@ function wpleads_admin_enqueuescripts($hook)
 
 	if (isset($_GET['taxonomy']))
 		return;
-
+	wp_enqueue_style('wpleads-global-backend-css', WPL_URL.'/css/wpl.global-backend.css');
 	if ((isset($_GET['post_type'])&&$_GET['post_type']=='wp-lead')||(isset($post->post_type)&&$post->post_type=='wp-lead'))
 	{
 		//echo $_GET['post_type'];exit;
@@ -242,6 +242,11 @@ function wpleads_admin_enqueuescripts($hook)
 		if ( $hook == 'post-new.php' )
 		{
 			wp_enqueue_script('wpleads-create-new-lead', WPL_URL . '/js/wpl.add-new.js');
+		}
+
+		if ( $hook == 'post.php' )
+		{
+			wp_enqueue_style('wpleads-admin-edit-css', WPL_URL.'/css/wpl.edit-lead.css');
 		}
 
 
