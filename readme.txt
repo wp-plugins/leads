@@ -7,7 +7,7 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: leads, lead capture, lead tracking, lead collection, lead management, crm, crm tools,customer relationship management, contact management, landing page leads, extendable
 Requires at least: 3.6
 Tested up to: 3.8
-Stable Tag: 1.2.5
+Stable Tag: 1.3.0
 
 Capture & store  lead information, gather critical lead intelligence, manage web leads from within your site and close more deals.
 
@@ -35,6 +35,8 @@ This plugin is built to be fully extendable by providing custom action and filte
 * Easy to use CRM interface.
 * Extend functionality with 3rd party extensions.
 * Sync your leads with a third party CRM like salesforce.com, Zoho or sugarCRM.
+* Integrate with 39+ Email service providers for Email Autoresponder Campaigns
+* Integrate with 36+ CRM providers for easy lead management
 
 This plugin is form agnostic meaning it will work with any almost any form system you use.
 
@@ -64,6 +66,15 @@ We built Lead Management as a framework! You can use our extendable framework to
 3. View Conversion Funnel Log for Each Customer(Lead)
 
 == Changelog ==
+= 1.3.0 =
+* Added New HTML Lead Email Template with clickable links for faster lead management
+* Added Button Shortcodes!
+* Added HTML field option to form tool
+* Added Divider Option to Form tool
+* Added multi column support to icon list shortcode
+* Added Font Awesome Icons option to Inbound Form Submit buttons
+* Added Social Sharing Shortcode
+
 = 1.2.5 =
 * Bug fix - missing trackingObj
 
