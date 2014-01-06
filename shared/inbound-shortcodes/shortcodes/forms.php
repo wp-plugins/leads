@@ -119,6 +119,21 @@
 						'std' => 'top',
 						'class' => 'main-design-settings',
 					),
+			'font-size' => array(
+							'name' => __('Form Font Size', INBOUND_LABEL),
+							'desc' => __('Size of Label Font. This also determines default submit button size', INBOUND_LABEL),
+							'type' => 'text',
+							'std' => '16',
+							'class' => 'main-design-settings',
+			),
+			'icon' => array(
+				'name' => __('Submit Button Icon', INBOUND_LABEL),
+				'desc' => __('Select an icon.', INBOUND_LABEL),
+				'type' => 'select',
+				'options' => $fontawesome,
+				'std' => 'none',
+				'class' => 'main-design-settings'
+			),
 			'submit' => array(
 				'name' => __('Submit Button Text', INBOUND_LABEL),
 				'desc' => __('Enter the text you want to show on the submit button. (or a link to a custom submit button image)', INBOUND_LABEL),
@@ -154,7 +169,8 @@
 						"radio" => "Radio Select",
 						"number" => "Number",
 						"checkbox" => "Checkbox",
-						//"html-block" => "HTML Block",
+						"html-block" => "HTML Block",
+						'divider' => "Divider",
 						"date" => "Date Field",
 						"time" => "Time Field",
 						'hidden' => "Hidden Field",
@@ -195,6 +211,13 @@
 					'type' => 'textarea',
 					'std' => '',
 					'reveal_on' => 'html-block' // on select choice show this
+				),
+				'divider_options' => array(
+					'name' => __('Divider Text (optional)',  INBOUND_LABEL),
+					'desc' => __('This is the text in the divider',  INBOUND_LABEL),
+					'type' => 'text',
+					'std' => '',
+					'reveal_on' => 'divider' // on select choice show this
 				),
 				'helper' => array(
 					'name' => __('Field Description <span class="small-optional-text">(optional)</span>',  INBOUND_LABEL),
@@ -244,10 +267,10 @@
 							'class' => 'advanced exclude',
 				),
 			),
-			'shortcode' => '[inbound_field label="{{label}}" type="{{field_type}}" description="{{description}}" required="{{required}}" dropdown="{{dropdown_options}}" radio="{{radio_options}}"  checkbox="{{checkbox_options}}" placeholder="{{placeholder}}" html="{{html_block_options}}" dynamic="{{hidden_input_options}}" map_to="{{map_to}}"]',
+			'shortcode' => '[inbound_field label="{{label}}" type="{{field_type}}" description="{{description}}" required="{{required}}" dropdown="{{dropdown_options}}" radio="{{radio_options}}"  checkbox="{{checkbox_options}}" placeholder="{{placeholder}}" html="{{html_block_options}}" dynamic="{{hidden_input_options}}" map_to="{{map_to}}" divider_options="{{divider_options}}"]',
 			'clone' => __('Add Another Field',  INBOUND_LABEL )
 		),
-		'shortcode' => '[inbound_form name="{{form_name}}" redirect="{{redirect}}" notify="{{notify}}" layout="{{layout}}" labels="{{labels}}" submit="{{submit}}" width="{{width}}"]{{child}}[/inbound_form]',
+		'shortcode' => '[inbound_form name="{{form_name}}" redirect="{{redirect}}" notify="{{notify}}" layout="{{layout}}" font_size="{{font-size}}"  labels="{{labels}}" icon="{{icon}}" submit="{{submit}}" width="{{width}}"]{{child}}[/inbound_form]',
 		'popup_title' => __('Insert Inbound Form Shortcode',  INBOUND_LABEL)
 	);
 
@@ -341,6 +364,49 @@ if (is_admin())
 	}
 }
 
+// Function to Kill third party bullshit scripts
+add_action('admin_enqueue_scripts', 'inbound_forms_compatibilities', 100);
+if (!function_exists('inbound_forms_compatibilities')) {
+function inbound_forms_compatibilities()
+{
+	if (is_admin())
+	{
+		if ( 'inbound-forms' == get_post_type() ) {
+				global $wp_scripts;
+				// print_r($wp_scripts->queue);
+				 $scripts_queued = $wp_scripts->queue; // All enqueued scripts
+				 $white_list_scripts = array( "common",
+				 					"jquery",
+				 					"jquery-cookie",
+				 					"admin-bar",
+				 					"autosave",
+				 					"post",
+				 					"thickbox",
+				 					"media-editor",
+				 					"utils",
+				 					"svg-painter",
+				 					"wp-auth-check",
+				 					"jquery-ui-accordion",
+				 					"jquery-ui-autocomplete",
+				 					"cas_admin_script",
+				 					"jquery-ui-sortable",
+				 					"inbound-shortcodes-plugins",
+				 					"inbound-shortcodes",
+				 					"selectjs",
+				 					"inbound-forms-cpt-js");
+
+				 foreach ($scripts_queued as $key => $value) {
+				 	//echo $key . $value;
+				 	if (!in_array($value, $white_list_scripts)){
+				 		wp_dequeue_script( $value );
+				 	}
+
+				 }
+		}
+	}
+
+}
+}
 
 if (!function_exists('inbound_forms_redirect')) {
 function inbound_forms_redirect($value){
@@ -368,7 +434,7 @@ if (!function_exists('inbound_get_form_names')) {
 		//print_r($cta_list);
 		$form_array = array();
 		$default_array = array(
-								"none" => "None (Build Your Own)",
+								"none" => "None (build your own in step 2)",
 								"default_form_3" => "Simple Email Form",
 								"default_form_1" => "First, Last, Email Form",
 								"default_form_2" => "Standard Company Form",
@@ -414,7 +480,7 @@ if (!function_exists('inbound_form_save'))
 	    $email_contents = (isset( $_POST['email_contents'] )) ? $_POST['email_contents'] : "";
 	    $send_email = (isset( $_POST['send_email'] )) ? $_POST['send_email'] : "off";
 	    $send_subject = (isset( $_POST['send_subject'] )) ? $_POST['send_subject'] : "off";
-
+	    //delete_transient('inbound-form-names');
 
 	    if ($post_type === 'inbound-forms'){
 	    	$post_ID = $page_id;
@@ -505,6 +571,22 @@ if (!function_exists('inbound_form_save'))
 	    }
 	}
 }
+
+add_filter( 'default_content', 'inbound_forms_default_content', 10, 2 );
+if (!function_exists('inbound_forms_default_content')) {
+	function inbound_forms_default_content( $content, $post ) {
+		if (!isset($post))
+		return;
+	    if( $post->post_type === 'inbound-forms' ) {
+
+	      $content = 'This is the email response. Do not use shortcodes or forms here. They will not work in emails. (Delete this text)';
+
+	    }
+
+	    return $content;
+	}
+}
+
 /* 	Shortcode moved to shared form class */
 if (!function_exists('inbound_form_get_data')) {
 	add_action('wp_ajax_inbound_form_get_data', 'inbound_form_get_data');
