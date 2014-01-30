@@ -401,24 +401,10 @@ class InboundForms {
 		//print_r($form_meta_data); exit;
 		//print_r($form_data); exit;
 
-		 $form_email = false;
-		 foreach ($form_data as $key => $value) {
-		 	if (preg_match('/email|e-mail/i', $key)) {
-		 		$form_email = $form_data[$key];
-		 	}
+		$form_email = (isset($form_data['email'])) ? $form_data['email'] : false;
 
-		 }
-
-		 if (!$form_email) {
-			if (isset($form_data['email'])) {
-				$form_email = $form_data['email'];
-			} else if (isset($form_data['e-mail'])) {
-				$form_email = $form_data['e-mail'];
-			} else if (isset($form_data['wpleads_email_address'])) {
-				$form_email = $form_data['wpleads_email_address'];
-			} else {
-				$form_email = 'null map email field';
-			}
+		if (!$form_email) {
+		$form_email = (isset($form_data['e-mail'])) ? $form_data['e-mail'] : false;
 		}
 
 		/* Might be better email send need to test and look at html edd emails */
@@ -704,7 +690,7 @@ class InboundForms {
 			$content_post = get_post($my_postid);
 			$content = $content_post->post_content;
 			$confirm_subject = get_post_meta( $my_postid, 'inbound_confirmation_subject', TRUE );
-			//$content = apply_filters('the_content', $content);
+			$content = apply_filters('the_content', $content);
 			$content = str_replace(']]>', ']]&gt;', $content);
 			$confirm_email_message = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 			  <html>

@@ -3,34 +3,49 @@
 Plugin Name: Leads
 Plugin URI: http://www.inboundnow.com/landing-pages/downloads/lead-management/
 Description: Wordpress Lead Manager provides CRM (Customer Relationship Management) applications for WordPress Landing Page plugin. Lead Manager Plugin provides a record management interface for viewing, editing, and exporting lead data collected by Landing Page Plugin.
-Author: Hudson Atwell(@atwellpub), David Wells (@inboundnow)
-Version: 1.3.0
+Author: Inbound Now
+Version: 1.3.1
 Author URI: http://www.inboundnow.com/landing-pages/
 */
 
-define('LEADS_CURRENT_VERSION', '1.3.0' );
+define('WPL_CURRENT_VERSION', '1.3.1' );
 define('WPL_URL', WP_PLUGIN_URL."/".dirname( plugin_basename( __FILE__ ) ) );
 define('WPL_PATH', WP_PLUGIN_DIR."/".dirname( plugin_basename( __FILE__ ) ) );
 define('WPL_CORE', plugin_basename( __FILE__ ) );
 define('WPL_STORE_URL', 'http://www.inboundnow.com' );
+define('WPL_TEXT_DOMAIN', 'leads' );
 
 include_once('modules/wpl.m.post-type.wp-lead.php');
 include_once('modules/wpl.m.post-type.list.php');
 include_once('modules/wpl.m.ajax-setup.php');
 include_once('modules/wpl.m.form-integrations.php');
 include_once('functions/wpl.f.global.php');
+include_once('modules/wpl.m.management.php');
 
 /* Inbound Core Shared Files. Lead files take presidence */
+add_action( 'plugins_loaded', 'inbound_load_shared_leads' );
+function inbound_load_shared_leads()
+{
+	/* Check if Shared Files Already Loaded */
+	if (defined('INBOUDNOW_SHARED'))
+		return;
 
-include_once('shared/tracking/store.lead.php'); // Lead Storage from landing pages
-include_once('shared/classes/form.class.php');  // Mirrored forms
-include_once('shared/classes/menu.class.php');  // Inbound Marketing Menu
-include_once('shared/classes/feedback.class.php');  // Inbound Feedback Form
+	/* Define Shared Constant for Load Prevention*/
+	define('INBOUDNOW_SHARED','loaded');
 
-include_once('shared/inbound-shortcodes/inbound-shortcodes.php');  // Shared Shortcodes
-include_once('shared/inboundnow/inboundnow.extension-licensing.php'); // Inboundnow Package Licensing
-include_once('shared/inboundnow/inboundnow.extension-updating.php'); // Inboundnow Package Updating
-
+	include_once('shared/tracking/store.lead.php'); // Lead Storage from landing pages
+	include_once('shared/classes/form.class.php');  // Mirrored forms
+	include_once('shared/classes/menu.class.php');  // Inbound Marketing Menu
+	include_once('shared/classes/feedback.class.php');  // Inbound Feedback Form
+	include_once('shared/classes/debug.class.php');  // Inbound Debug & Scripts Class
+	include_once('shared/classes/compatibility.class.php');  // Inbound Compatibility Class
+	include_once('shared/inbound-shortcodes/inbound-shortcodes.php');  // Shared Shortcodes
+	include_once('shared/inboundnow/inboundnow.extend.php');
+	include_once('shared/inboundnow/inboundnow.extension-licensing.php'); // Legacy - Inboundnow Package Licensing
+	include_once('shared/inboundnow/inboundnow.extension-updating.php'); // Legacy -Inboundnow Package Updating
+	include_once('shared/inboundnow/inboundnow.global-settings.php'); // Inboundnow Global Settings
+	include_once('shared/metaboxes/template.metaboxes.php');  // Shared Shortcodes
+}
 
 
 
@@ -40,7 +55,7 @@ add_action( 'wpl_store_lead_post', 'wpleads_hook_store_lead_post' );
 
 if (is_admin())
 {
-	load_plugin_textdomain('wpleads',false,dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+	//load_plugin_textdomain('wpleads',false,dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 
 	/*SETUP NAVIGATION AND DISPLAY ELEMENTS
 	$tab_slug = 'lp-license-keys';
@@ -58,7 +73,6 @@ if (is_admin())
 	include_once('functions/wpl.f.admin.php');
 	include_once('modules/wpl.m.global-settings.php');
 	include_once('modules/wpl.m.dashboard.php');
-
 
 
 
@@ -256,6 +270,9 @@ function wpleads_admin_enqueuescripts($hook)
 
 		if ( $hook == 'post.php' )
 		{
+			if (isset($_GET['small_lead_preview'])) {
+			wp_enqueue_style('wpleads-popup-css', WPL_URL.'/css/wpl.popup.css');
+			}
 			wp_enqueue_style('wpleads-admin-edit-css', WPL_URL.'/css/wpl.edit-lead.css');
 		}
 
@@ -346,9 +363,13 @@ if (is_admin())
 		//echo 1; exit;
 		if (current_user_can('manage_options'))
 		{
+			add_submenu_page('edit.php?post_type=wp-lead', 'Lead Management', 'Lead Management', 'manage_options', 'lead_management','lead_management_admin_screen');
+
 			add_submenu_page('edit.php?post_type=wp-lead', 'Forms', 'Create Forms', 'manage_options', 'inbound-forms-redirect',100);
 
 			add_submenu_page('edit.php?post_type=wp-lead', 'Settings', 'Global Settings', 'manage_options', 'wpleads_global_settings','wpleads_display_global_settings');
+
+
 
 		}
 	}
