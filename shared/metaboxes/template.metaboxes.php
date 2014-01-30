@@ -2,6 +2,7 @@
 
 
 // replacing wp_cta_show_metabox
+if (!function_exists('inbound_template_show_metabox')) {
 function inbound_template_show_metabox($post,$key)
 {
 	$extension_data = wp_cta_get_extension_data();
@@ -13,7 +14,9 @@ function inbound_template_show_metabox($post,$key)
 
 	inbound_template_metabox_render($key,$wp_cta_custom_fields,$post);
 }
+}
 
+if (!function_exists('inbound_template_metabox_render')) {
 // replacing wp_cta_render_metabox
 function inbound_template_metabox_render($key,$custom_fields,$post)
 {
@@ -174,4 +177,5 @@ function inbound_template_metabox_render($key,$custom_fields,$post)
 	} // end foreach
 	echo '</div>'; // end table
 	//exit;
+}
 }
