@@ -25,8 +25,15 @@
 		"wpleads_notes" => "Notes"
 		);
 	}
-	//print_r($lead_mapping_fields);
 
+	if (empty($lead_list_names)){
+		// if lead transient doesn't exist use defaults
+		$lead_list_names = array(
+		'null' => 'No Lists detected',
+		);
+	}
+	//print_r($lead_mapping_fields);
+	$lists_link = admin_url( 'edit-tags.php?taxonomy=wplead_list_category&post_type=wp-lead' );
 	$shortcodes_config['forms'] = array(
 		'no_preview' => false,
 		'options' => array(
@@ -75,12 +82,27 @@
 			), */
 			'notify' => array(
 				'name' => __('Notify on Form Completions<span class="small-required-text">*</span>', INBOUND_LABEL),
-				'desc' => __('Who should get admin notifications on this form?', INBOUND_LABEL),
+				'desc' => __('Who should get admin notifications on this form?<br>For multiple notifications separate email addresses with commas', INBOUND_LABEL),
 				'type' => 'text',
 				'placeholder' => "youremail@email.com",
 				'std' => '',
 				'class' => 'main-form-settings',
 			),
+			'lists' => array(
+				'name' => __('Add to List(s)', INBOUND_LABEL),
+				'desc' => __('Add the converting lead to 1 or more <a target="_blank" title="Create Lead Lists" href="'.$lists_link.'">lead lists</a>', INBOUND_LABEL),
+				'type' => 'multiselect',
+				'options' => $lead_list_names,
+				'class' => 'main-form-settings',
+			),
+
+			'lists_hidden' => array(
+				'name' => __('Hidden List Values', INBOUND_LABEL),
+				'desc' => __('', INBOUND_LABEL),
+				'type' => 'hidden',
+				'class' => 'main-form-settings',
+			),
+
 			'helper-block-one' => array(
 					'name' => __('Name Name Name',  INBOUND_LABEL),
 					'desc' => __('<span class="switch-to-form-insert button">Cancel Form Creation & Insert Existing Form</span>',  INBOUND_LABEL),
@@ -212,6 +234,14 @@
 					'std' => '',
 					'reveal_on' => 'html-block' // on select choice show this
 				),
+				'default_value' => array(
+					'name' => __('Default Value',  INBOUND_LABEL),
+					'desc' => __('Enter the Default Value',  INBOUND_LABEL),
+					'type' => 'text',
+					'std' => '',
+					'placeholder' => 'Enter Default Value',
+					'reveal_on' => 'hidden' // on select choice show this
+				),
 				'divider_options' => array(
 					'name' => __('Divider Text (optional)',  INBOUND_LABEL),
 					'desc' => __('This is the text in the divider',  INBOUND_LABEL),
@@ -267,10 +297,10 @@
 							'class' => 'advanced exclude',
 				),
 			),
-			'shortcode' => '[inbound_field label="{{label}}" type="{{field_type}}" description="{{description}}" required="{{required}}" dropdown="{{dropdown_options}}" radio="{{radio_options}}"  checkbox="{{checkbox_options}}" placeholder="{{placeholder}}" html="{{html_block_options}}" dynamic="{{hidden_input_options}}" map_to="{{map_to}}" divider_options="{{divider_options}}"]',
+			'shortcode' => '[inbound_field label="{{label}}" type="{{field_type}}" description="{{description}}" required="{{required}}" dropdown="{{dropdown_options}}" radio="{{radio_options}}"  checkbox="{{checkbox_options}}" placeholder="{{placeholder}}" html="{{html_block_options}}" dynamic="{{hidden_input_options}}" default="{{default_value}}" map_to="{{map_to}}" divider_options="{{divider_options}}"]',
 			'clone' => __('Add Another Field',  INBOUND_LABEL )
 		),
-		'shortcode' => '[inbound_form name="{{form_name}}" redirect="{{redirect}}" notify="{{notify}}" layout="{{layout}}" font_size="{{font-size}}"  labels="{{labels}}" icon="{{icon}}" submit="{{submit}}" width="{{width}}"]{{child}}[/inbound_form]',
+		'shortcode' => '[inbound_form name="{{form_name}}" lists="{{lists_hidden}}" redirect="{{redirect}}" notify="{{notify}}" layout="{{layout}}" font_size="{{font-size}}"  labels="{{labels}}" icon="{{icon}}" submit="{{submit}}" width="{{width}}"]{{child}}[/inbound_form]',
 		'popup_title' => __('Insert Inbound Form Shortcode',  INBOUND_LABEL)
 	);
 
@@ -364,51 +394,6 @@ if (is_admin())
 	}
 }
 
-// Function to Kill third party bullshit scripts
-add_action('admin_enqueue_scripts', 'inbound_forms_compatibilities', 100);
-if (!function_exists('inbound_forms_compatibilities')) {
-function inbound_forms_compatibilities()
-{
-	if (is_admin())
-	{
-		if ( 'inbound-forms' == get_post_type() ) {
-				global $wp_scripts;
-				// print_r($wp_scripts->queue);
-				 $scripts_queued = $wp_scripts->queue; // All enqueued scripts
-				 $white_list_scripts = array( "common",
-				 					"jquery",
-				 					"jquery-cookie",
-				 					"admin-bar",
-				 					"autosave",
-				 					"post",
-				 					"thickbox",
-				 					"media-editor",
-				 					"utils",
-				 					"svg-painter",
-				 					"wp-auth-check",
-				 					"jquery-ui-accordion",
-				 					"jquery-ui-autocomplete",
-				 					"cas_admin_script",
-				 					"jquery-ui-sortable",
-				 					"inbound-shortcodes-plugins",
-				 					"inbound-shortcodes",
-				 					"selectjs",
-				 					"inbound-forms-cpt-js");
-
-				 foreach ($scripts_queued as $key => $value) {
-				 	//echo $key . $value;
-				 	if (!in_array($value, $white_list_scripts)){
-				 		wp_dequeue_script( $value );
-				 	}
-
-				 }
-		}
-	}
-
-}
-}
-
-
 add_action('admin_init', 'inbound_forms_redirect');
 if (!function_exists('inbound_forms_redirect')) {
 function inbound_forms_redirect($value){
@@ -426,7 +411,7 @@ if (!function_exists('inbound_get_form_names')) {
 	function inbound_get_form_names() {
 		global $post;
 
-		$loop = get_transient( 'inbound-form-names-off' );
+		$loop = get_transient( 'inbound-form-names' );
 	    if ( false === $loop ) {
 		$args = array(
 		'posts_per_page'  => -1,
@@ -459,6 +444,42 @@ if (!function_exists('inbound_get_form_names')) {
 
 	}
 }
+add_action('init', 'inbound_get_lead_list_names',16);
+if (!function_exists('inbound_get_lead_list_names')) {
+	function inbound_get_lead_list_names() {
+		global $post;
+
+		$loop = get_transient( 'inbound-list-names' );
+	    if ( false === $loop ) {
+		$args = array(
+			    'hide_empty'    => false,
+			);
+		$terms = get_terms('wplead_list_category', $args);
+		$list_names = array();
+		foreach ($terms as $term ) {
+			$list_names[$term->term_id] = $term->name;
+		}
+
+		set_transient('inbound-list-names', $list_names, 24 * HOUR_IN_SECONDS);
+		}
+
+	}
+}
+if (!function_exists('inbound_form_delete_transient')) {
+	// Refresh transient
+	function inbound_form_delete_transient($post_id, $post){
+	    //determine post type
+	    if(get_post_type( $post_id ) == 'inbound-forms'){
+	        //run your code
+	        delete_transient('inbound-form-names');
+	        inbound_get_form_names();
+	    }
+	}
+}
+add_action('save_post', 'inbound_form_delete_transient', 10, 2);
+add_action('edit_post', 'inbound_form_delete_transient', 10, 2);
+add_action('wp_insert_post', 'inbound_form_delete_transient', 10, 2);
+
 if (!function_exists('inbound_form_save'))
 {
 	/* 	Shortcode moved to shared form class */
@@ -481,7 +502,6 @@ if (!function_exists('inbound_form_save'))
 	    $email_contents = (isset( $_POST['email_contents'] )) ? $_POST['email_contents'] : "";
 	    $send_email = (isset( $_POST['send_email'] )) ? $_POST['send_email'] : "off";
 	    $send_subject = (isset( $_POST['send_subject'] )) ? $_POST['send_subject'] : "off";
-	    //delete_transient('inbound-form-names');
 
 	    if ($post_type === 'inbound-forms'){
 	    	$post_ID = $page_id;
@@ -562,6 +582,9 @@ if (!function_exists('inbound_form_save'))
 	        }
 	        $shortcode = str_replace("[inbound_form", "[inbound_form id=\"" . $post_ID . "\"", $shortcode);
 	        update_post_meta( $post_ID, 'inbound_shortcode', $shortcode );
+
+	    	inbound_form_delete_transient();
+
 
 	           	$output =  array('post_id'=> $post_ID,
 	                     'form_name'=>$form_name,
