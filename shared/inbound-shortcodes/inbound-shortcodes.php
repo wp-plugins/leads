@@ -103,7 +103,7 @@ class InboundShortcodes {
 		  array_push($plugins_loaded, "leads");
 		}
 
-		wp_localize_script( 'inbound-shortcodes', 'inbound_load', array( 'image_dir' => $final_path.'shared/inbound-shortcodes/', 'inbound_plugins' => $plugins_loaded, 'pop_title' => 'Insert Shortcode' ));
+		wp_localize_script( 'inbound-shortcodes-plugins', 'inbound_load', array( 'image_dir' => $final_path.'shared/inbound-shortcodes/', 'inbound_plugins' => $plugins_loaded, 'pop_title' => 'Insert Shortcode' ));
 
 		if (isset($post)&&$post->post_type=='inbound-forms')
 		{
