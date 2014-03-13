@@ -5,9 +5,9 @@ Donate link: mailto:marketplace@inboundnow.com
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: leads, lead capture, lead tracking, lead collection, lead management, crm, crm tools,customer relationship management, contact management, landing page leads, extendable
-Requires at least: 3.7
+Requires at least: 3.8
 Tested up to: 3.8
-Stable Tag: 1.3.4
+Stable Tag: 1.3.5
 
 Track website visitor activity, capture and manage incoming leads, and send collected emails to your email service provider.
 
@@ -22,7 +22,7 @@ Wordpress leads gives you powerful visitor tracking where Google Analytics leave
 * Learn where your leads are coming from geographically
 * What pages they viewed on your site
 * See past comments they have made on your blog
-* Know what they have searched for on your site 
+* Know what they have searched for on your site
 * Learn where referral traffic is coming from
 * See social media profiles and sites they own
 * Gather demographic data
@@ -80,6 +80,11 @@ We built Lead Management as a framework! You can use our extendable framework to
 4. Get Notified on Lead Conversions
 
 == Changelog ==
+= 1.3.5 =
+* fixed field mapping bug
+* Added better compability for js conflicts
+* Prepping for automation
+
 = 1.3.4 =
 * Improved form compatibilty with contact form 7, gravity forms, and ninja forms
 * Now tracking blog comments. View the new comments tab in the lead activity profile!
