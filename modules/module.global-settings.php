@@ -76,7 +76,7 @@ function wpleads_get_global_settings() {
 		array(
 			'id'  => 'extra-lead-data',
 			'label' => __('Full Contact API Key' , 'leads' ),
-			'description' => __("<p>Enter your Full contact API key. If you don't have one. Grab a free one here: <a href='https://www.fullcontact.com/developer/pricing/' target='_blank'>here</a></p>" , 'leads' ),
+			'description' => sprintf( __("<p>Enter your Full contact API key. If you don't have one. Grab a free one here: %s here %s </p>" , 'leads' ) , "<a href='https://www.fullcontact.com/developer/pricing/' target='_blank'>" , "</a>"),
 			'type'  => 'text',
 			'default'  => '',
 			'options' => null
@@ -241,7 +241,7 @@ function wpleads_render_global_settings($key,$custom_fields,$active_tab) {
 							$i++;
 						}
 						echo "</table>";
-						echo '<br><div class="wpl_tooltip tool_checkbox" title="'. $field['description'] .'"></div><p class="description">'. $field['description'] .'</p>';
+						echo '<div class="wpl_tooltip tool_checkbox" title="'. $field['description'] .'"></div><p class="description">'. $field['description'] .'</p>';
 					break;
 					// radio
 					case 'radio':
@@ -263,7 +263,7 @@ function wpleads_render_global_settings($key,$custom_fields,$active_tab) {
 					break;
 					case 'html':
 						echo $field['value'];
-						echo '<br /><div class="lp_tooltip tool_dropdown" title="'. $field['description'] .'"></div>';
+						echo '<div class="wpl_tooltip tool_dropdown" title="'. $field['description'] .'"></div>';
 					break;
 
 				} //end switch
@@ -288,38 +288,7 @@ function wpleads_display_global_settings_js() {
 	}
 
 	?>
-	<script type='text/javascript'>
-		jQuery(document).ready(function()
-		{
-			jQuery('#<?php echo $default_id; ?>').css('display','block');
-			 setTimeout(function() {
-				var getoption = document.URL.split('&option=')[1];
-				var showoption = "#" + getoption;
-				jQuery(showoption).click();
-			}, 100);
 
-			<?php
-			foreach ($wpleads_global_settings as $key => $array)
-			{
-			?>
-				jQuery('.wpl-nav-tab').live('click', function() {
-
-					var this_id = this.id.replace('tabs-','');
-					//alert(this_id);
-					jQuery('.wpl-tab-display').css('display','none');
-					jQuery('#'+this_id).css('display','block');
-					jQuery('.wpl-nav-tab').removeClass('nav-tab-special-active');
-					jQuery('.wpl-nav-tab').addClass('nav-tab-special-inactive');
-					jQuery('#tabs-'+this_id).addClass('nav-tab-special-active');
-					jQuery('#id-open-tab').val(this_id);
-
-
-				});
-			<?php
-			}
-			?>
-		});
-	</script>
 	<?php
 }
 
