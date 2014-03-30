@@ -3,20 +3,17 @@
 
 $wpleads_lead_rules = new InboundAutomationCron;
 
-class InboundAutomationCron
-{
+class InboundAutomationCron {
 	private $queue;
 	private $queue_encoded;
 
-	function __construct()
-	{
+	function __construct() {
 		$this->daily_cron_init();
 		$this->manual_cron_init();
 
 	}
 
-	function daily_cron_init()
-	{
+	function daily_cron_init() {
 		/* hook processing actions to daily cron action */
 		add_action('wpleads_lead_automation_daily' , array( 'InboundAutomationCron', 'process_automation_daily' ) );
 
@@ -26,8 +23,7 @@ class InboundAutomationCron
 		}
 	}
 
-	function manual_cron_init()
-	{
+	function manual_cron_init() {
 		/* check manual processing queue for jobs */
 		$this->queue = get_option('automation_queue' , "");
 		$this->queue = json_decode( $this->queue , true );
@@ -55,8 +51,7 @@ class InboundAutomationCron
 
 	}
 
-	function define_period( $schedules )
-	{
+	function define_period( $schedules ) {
 		$schedules['2min'] = array(
 			'interval' => 2 * 60,
 			'display' => __( 'Once every two minutes' )
@@ -65,13 +60,11 @@ class InboundAutomationCron
 		return $schedules;
 	}
 
-	function process_automation_manually()
-	{
+	function process_automation_manually() {
 		set_time_limit ( 0 );
 		ignore_user_abort ( true );
 
-		if ( !is_array($this->queue) && isset($_GET['wpleads_lead_automation_run_manual_cron']) )
-		{
+		if ( !is_array($this->queue) && isset($_GET['wpleads_lead_automation_run_manual_cron']) ) {
 			echo 'All done!';exit;
 		}
 
@@ -82,8 +75,7 @@ class InboundAutomationCron
 
 		_e("Rules in processing queue: {$count} <br>" , 'leads' );
 
-		foreach ($this->queue as $automation_id => $automation_data)
-		{
+		foreach ($this->queue as $automation_id => $automation_data) {
 
 			_e("Processing next rule in line: {$automation_id} <br>" , 'leads' );
 
@@ -92,13 +84,11 @@ class InboundAutomationCron
 
 			end($tmp);
 			$last_key = key($tmp);
-			foreach ($automation_data as $batch_id=>$lead_ids)
-			{
+			foreach ($automation_data as $batch_id=>$lead_ids) {
 				_e("Processing batch number: {$batch_id} of {$last_key} <br>" , 'leads' );
 				echo "<hr>";
 				$i=0;
-				foreach ($lead_ids as $lead_id)
-				{
+				foreach ($lead_ids as $lead_id) {
 					$this->execute_rule( $automation_id , $lead_id );
 					$i++;
 				}
@@ -107,32 +97,34 @@ class InboundAutomationCron
 				unset( $this->queue[$automation_id][$batch_id] );
 
 				/* check if rule id has any more batches and delete rule id from queue if batches are exausted - delete rule id if empty*/
-				if ( count($this->queue[$automation_id]) == 0 )
+				if ( count($this->queue[$automation_id]) == 0 ) {
 					unset($this->queue[$automation_id]);
+				}
 
 				/* break */
 				break;
 			}
 
 			/* check if rules queue has any more rule ids to process - delete rule queue if empty  */
-			if ( count($this->queue) == 0 )
+			if (count($this->queue) == 0 ) {
 					$this->queue = null;
+			}
 
 			/* break */
 			break;
 		}
 
 		/* update rule queue */
-		if (is_array($this->queue))
+		if (is_array($this->queue)) {
 			$this->queue_encoded = json_encode( $this->queue );
+		}
 
 		update_option( 'automation_queue' , $this->queue_encoded );
 		exit;
 	}
 
 	/* RULE AUTOMATION ENGINE FOR PROCESSING RECENTLY CONVERTED LEADS */
-	function process_automation_daily()
-	{
+	function process_automation_daily() {
 		global $wpdb;
 
 		set_time_limit ( 0 );
@@ -166,8 +158,7 @@ class InboundAutomationCron
 
 		_e("Processing Begin: ". count($leads) ." Leads to process <br><br>" , 'leads' );
 
-		foreach  ($leads as $lead)
-		{
+		foreach  ($leads as $lead) {
 
 			$lead_id = $lead->ID;
 
@@ -194,8 +185,7 @@ class InboundAutomationCron
 		}
 	}
 
-	function execute_rule( $automation_id , $lead_id )
-	{
+	function execute_rule( $automation_id , $lead_id ) {
 		$conditions_met = array();
 
 		echo "<br><br>";
@@ -229,30 +219,27 @@ class InboundAutomationCron
 			$automation_block_ids = array('0'=>'0');
 
 
-		if ($automation_meta_data['automation_active'][0]!='active')
-		{
+		if ($automation_meta_data['automation_active'][0]!='active') {
 			sprintf( _e("Skipping Rule: Rule %d ( %s ) is set to inactive! <br>" , 'leads' ) , $automation_meta_data['automation_id'][0] , $automation_meta_data['automation_name'][0]);
 			return;
 		}
 
-		if ($automation_meta_data['automation_condition_automation_check_0'][0]=='on')
-		{
+		if ($automation_meta_data['automation_condition_automation_check_0'][0]=='on') {
 			$automation_accomplished = get_post_meta($lead_id, 'automation_accomplished', true);
 			$automation_accomplished = json_decode( $automation_accomplished , true );
 
-			if ( !is_array($automation_accomplised) )
+			if ( !is_array($automation_accomplised) ) {
 				$automation_accomplished = array();
+			}
 
-			if ( array_key_exists ( $automation_meta_data['automation_id'][0] , $automation_accomplished ) )
-			{
+			if ( array_key_exists ( $automation_meta_data['automation_id'][0] , $automation_accomplished ) ) {
 				sprintf(  _e("Skipping Rule: Rule %d ( %s )  already completed for lead %d! <br>" , 'leads' ) , $automation_meta_data['automation_id'][0] , $automation_meta_data['automation_name'][0] , $lead_id);
 				return;
 			}
 		}
 
 
-		foreach ($automation_block_ids as $condtion_key => $cid)
-		{
+		foreach ($automation_block_ids as $condtion_key => $cid) {
 
 			$conditions_met[$cid] = false;
 
@@ -381,8 +368,7 @@ class InboundAutomationCron
 	}
 
 
-	function get_conversion_pages_viewed($lead_id)
-	{
+	function get_conversion_pages_viewed($lead_id) {
 		global $wpdb;
 
 		$conversion_data = get_post_meta( $lead_id , 'wpleads_conversion_data' ,  true);
@@ -392,37 +378,34 @@ class InboundAutomationCron
 		if (!$conversion_data)
 			return array();
 
-		foreach ($conversion_data as $key => $data)
-		{
+		foreach ($conversion_data as $key => $data) {
 			if (!isset($data['id'])||!is_numeric($data['id']))
 				continue;
 
 			$conversion_pages_viewed[] = $data['id'] ;
-
 		}
 
 		return $conversion_pages_viewed;
 	}
 
-	function get_pages_viewed($lead_id)
-	{
+	function get_pages_viewed($lead_id) {
 		global $wpdb;
 
 		$pages_viewed_data = get_post_meta( $lead_id , 'page_views' ,  true);
 
 		$pages_viewed_data = json_decode( $pages_viewed_data , true );
 
-		if (!$pages_viewed_data)
+		if (!$pages_viewed_data) {
 			return array();
+		}
 
-		foreach ($pages_viewed_data as $key => $data)
-		{
+		foreach ($pages_viewed_data as $key => $data) {
 			if (is_numeric($key)){
 				$pages_viewed[] = $key;
 			}
 		}
 
-		if (!$pages_viewed){
+		if (!$pages_viewed) {
 			$pages_viewed = array();
 		}
 
@@ -431,13 +414,11 @@ class InboundAutomationCron
 		return $pages_viewed;
 	}
 
-	function perform_automation_action( $lead_id , $automation_meta_data )
-	{
+	function perform_automation_action( $lead_id , $automation_meta_data ) {
 
 		$gateway_open = apply_filters('wpleads_lead_automation_action_gateway', true , $lead_id, $automation_meta_data);
 
-		if ($gateway_open)
-		{
+		if ($gateway_open) {
 			/* SORT INTO WORDPRESS LISTS */
 			$lists_wp = $automation_meta_data['automation_condition_list_add_0'][0];
 
@@ -445,10 +426,8 @@ class InboundAutomationCron
 			//print_r($lists_wp); echo $lead_id; exit;
 			$lists_wp = array_filter($lists_wp);
 
-			if (is_array($lists_wp)&&count($lists_wp)>0)
-			{
-				foreach ($lists_wp as $k=>$list_id)
-				{
+			if (is_array($lists_wp)&&count($lists_wp)>0) {
+				foreach ($lists_wp as $k=>$list_id) {
 					_e("Action: Synching Lead $lead_id with List $list_id <br>" , 'leads' );
 					// wpleads_add_lead_to_list($list_id, $lead_id, $add = true); // old list cpt function
 					add_lead_to_list_tax($lead_id, intval($list_id));
@@ -459,8 +438,7 @@ class InboundAutomationCron
 			$lists_wp = $automation_meta_data['automation_condition_list_remove_0'][0];
 			$lists_wp = explode(';',$lists_wp);
 			$lists_wp = array_filter($lists_wp);
-			if (is_array($lists_wp)&&count($lists_wp)>0)
-			{
+			if (is_array($lists_wp)&&count($lists_wp)>0) {
 				$categories = wp_get_post_terms( $lead_id, 'wplead_list_category', array( 'fields'=>'ids' ) );
 
 				foreach ($lists_wp as $k=>$list_id)
@@ -475,17 +453,14 @@ class InboundAutomationCron
 
 			/* AWARD POINTS */
 			$points = $automation_meta_data['automation_condition_points_0'][0];
-			if ($points&&$points[0]=='-')
-			{
+			if ($points&&$points[0]=='-') {
 				$points = str_replace('-','', $points);
 				$points = trim($points);
 				//subtract points
 				$current_points = get_post_meta($lead_id, 'automation_points', true);
 				($current_points) ? $current_points = $current_points - $points : $current_points = 0 - $points;
 				update_post_meta($lead_id, 'automation_points' , $current_points);
-			}
-			else if ($points)
-			{
+			} else if ($points) {
 				//add points
 				$current_points = get_post_meta($lead_id, 'automation_points', true);
 				($current_points) ? $current_points = $current_points + $points : $current_points = 0 + $points;
@@ -508,8 +483,6 @@ class InboundAutomationCron
 			$automation_accomplsihed_count = count( $automation_accomplished );
 			$automation_accomplished = json_encode( $automation_accomplished );
 			update_post_meta( $lead_id , 'automation_accomplished' , $automation_accomplished);
-
-
 
 
 			do_action('automation_cron_perform_action_post', $lead_id, $automation_meta_data);

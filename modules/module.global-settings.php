@@ -114,23 +114,16 @@ function wpleads_get_global_settings() {
 
 /* Add Extensions License Key Header if Extensions are present */
 add_filter('wpleads_define_global_settings', 'wpleads_add_extension_license_key_header',1,1);
-function wpleads_add_extension_license_key_header($wpleads_global_settings)
-{
+function wpleads_add_extension_license_key_header($wpleads_global_settings) {
 	//print_r($wpleads_global_settings);exit;
-	foreach ($wpleads_global_settings as $parent_tab => $aa)
-	{
-		if (is_array($aa))
-		{
+	foreach ($wpleads_global_settings as $parent_tab => $aa) {
+		if (is_array($aa)) {
 
-			foreach ($aa as $k=>$aaa)
-			{
+			foreach ($aa as $k=>$aaa) {
 				/* change 'options' key to 'settings' */
-				if ($k=='options')
-				{
-					if (is_array($aaa))
-					{
-						foreach ($aaa as $kk => $aaaa)
-						{
+				if ($k=='options') {
+					if (is_array($aaa)) {
+						foreach ($aaa as $kk => $aaaa) {
 							$wpleads_global_settings[$parent_tab]['settings'][] = $aaaa;
 						}
 					}
@@ -147,12 +140,9 @@ function wpleads_add_extension_license_key_header($wpleads_global_settings)
 function wpleads_render_global_settings($key,$custom_fields,$active_tab) {
 
 	/* Check if active tab */
-	if ($key==$active_tab)
-	{
+	if ($key==$active_tab) {
 		$display = 'block';
-	}
-	else
-	{
+	} else {
 		$display = 'none';
 	}
 
@@ -162,8 +152,7 @@ function wpleads_render_global_settings($key,$custom_fields,$active_tab) {
 	/* Begin the field table and loop */
 	echo '<table class="wpl-tab-display" id="'.$key.'" style="display:'.$display.'">';
 
-	foreach ($custom_fields as $field)
-	{
+	foreach ($custom_fields as $field) {
 		/* get value of this field if it exists for this post */
 		(isset($field['default'])) ? $default = $field['default'] : $default = null;
 
@@ -178,7 +167,7 @@ function wpleads_render_global_settings($key,$custom_fields,$active_tab) {
 		echo '<tr><th class="wpl-gs-th" valign="top" style="font-weight:300;">';
 		if ($field['type']=='header'){
 			echo $field['default'];
-		}else{
+		} else {
 			echo "<div class='inbound-setting-label'>".$field['label']."</div>";
 		}
 		echo '</th><td>';
@@ -227,15 +216,13 @@ function wpleads_render_global_settings($key,$custom_fields,$active_tab) {
 							$field['value'] = array($field['value']);
 						}
 						foreach ($field['options'] as $value=>$label) {
-							if ($i==5||$i==1)
-							{
+							if ($i==5||$i==1) {
 								echo "<tr>";
 								$i=1;
 							}
 								echo '<td><input type="checkbox" name="'.$field['id'].'[]" id="'.$field['id'].'" value="'.$value.'" ',in_array($value,$field['value']) ? ' checked="checked"' : '','/>';
 								echo '<label for="'.$value.'">&nbsp;&nbsp;'.$label.'</label></td>';
-							if ($i==4)
-							{
+							if ($i==4) {
 								echo "</tr>";
 							}
 							$i++;
@@ -278,18 +265,11 @@ function wpleads_display_global_settings_js() {
 	global $wpleads_global_settings;
 	$wpleads_global_settings = wpleads_get_global_settings();
 
-	if (isset($_GET['tab']))
-	{
+	if (isset($_GET['tab'])) {
 		$default_id = $_GET['tab'];
-	}
-	else
-	{
+	} else {
 		$default_id ='wpl-main';
 	}
-
-	?>
-
-	<?php
 }
 
 function wpleads_display_global_settings() {
@@ -297,8 +277,7 @@ function wpleads_display_global_settings() {
 	$wpleads_global_settings = wpleads_get_global_settings();
 
 	$active_tab = 'wpl-main';
-	if (isset($_REQUEST['open-tab']))
-	{
+	if (isset($_REQUEST['open-tab'])) {
 		$active_tab = $_REQUEST['open-tab'];
 	}
 
@@ -307,8 +286,7 @@ function wpleads_display_global_settings() {
 
 	echo '<h2 class="nav-tab-wrapper">';
 
-	foreach ($wpleads_global_settings as $key => $data)
-	{
+	foreach ($wpleads_global_settings as $key => $data) {
 		?>
 		<a  id='tabs-<?php echo $key; ?>' class="wpl-nav-tab nav-tab nav-tab-special<?php echo $active_tab == $key ? '-active' : '-inactive'; ?>"><?php _e( $data['label'] , 'leads' ); ?></a>
 		<?php
@@ -318,8 +296,7 @@ function wpleads_display_global_settings() {
 	echo "<input type='hidden' name='nature' value='wpl-global-settings-save'>";
 	echo "<input type='hidden' name='open-tab' id='id-open-tab' value='{$active_tab}'>";
 
-	foreach ($wpleads_global_settings as $key => $array)
-	{
+	foreach ($wpleads_global_settings as $key => $array) {
 		if (!array_key_exists('settings',$array)){
 			continue;
 		}
@@ -334,41 +311,42 @@ function wpleads_display_global_settings() {
 
 }
 
-function wpleads_save_global_settings()
-{
+function wpleads_save_global_settings() {
 	//echo "here";exit;
 	$wpleads_global_settings = wpleads_get_global_settings();
 
-	if (!isset($_POST['nature']))
+	if (!isset($_POST['nature'])) {
 		return;
+	}
 
-
-	foreach ($wpleads_global_settings as $key=>$array)
-	{
+	foreach ($wpleads_global_settings as $key=>$array) {
 		$wpleads_options = $wpleads_global_settings[$key]['settings'];
 
-		if (!$wpleads_options)
+		if (!$wpleads_options) {
 			continue;
+		}
 
-		// loop through fields and save the data
-		foreach ($wpleads_options as $field)
-		{
+		/* loop through fields and save the data */
+		foreach ($wpleads_options as $field) {
 			//echo $field['id'].":".$_POST['main-landing-page-auto-format-forms']."<br>";
 			$field['id'] = $key.'-'.$field['id'];
 
-			if (array_key_exists('option_name',$field) && $field['option_name'] )
+			if (array_key_exists('option_name',$field) && $field['option_name'] ) {
 				$field['id'] = $field['option_name'];
-
+			}
+			
+			if ( !isset($_POST[$field['id']]) ) {
+				continue;
+			}
+			
 			$field['old_value'] = get_option($field['id']);
 			$field['new_value'] = $_POST[$field['id']];
 
-			if ((isset($field['new_value']) && $field['new_value'] !== $field['old_value'] )|| !isset($field['old_value']) )
-			{
+			if ((isset($field['new_value']) && $field['new_value'] !== $field['old_value'] )|| !isset($field['old_value']) ) {
 				//echo $field['id'];exit;
 				$bool = update_option($field['id'],$field['new_value']);
 
-				if ($field['type']=='license-key')
-				{
+				if ($field['type']=='license-key') {
 
 					// data to send in our API request
 					$api_params = array(
@@ -383,8 +361,9 @@ function wpleads_save_global_settings()
 					//echo $response['body'];exit;
 
 					// make sure the response came back okay
-					if ( is_wp_error( $response ) )
+					if ( is_wp_error( $response ) ) {
 						break;
+					}
 
 					// decode the license data
 					$license_data = json_decode( wp_remote_retrieve_body( $response ) );
@@ -395,23 +374,19 @@ function wpleads_save_global_settings()
 
 					//echo 'lp_license_status-'.$field['slug']." :".$license_data->license;exit;
 				}
-			}
-			elseif ('' == $field['new_value'] && $field['old_value'])
-			{
-				if ($field['type']=='license-key')
-				{
+			} elseif ('' == $field['new_value'] && $field['old_value']) {
+
+				if ($field['type']=='license-key') {
+
 					$master_key = get_option('inboundnow_master_license_key' , '');
-					if ($master_key)
-					{
+
+					if ($master_key) {
 						$bool = update_option($field['id'], $master_key );
-					}
-					else
-					{
+					} else {
 						update_option($field['id'], '' );
 					}
-				}
-				else
-				{
+
+				} else {
 					$bool = update_option($field['id'],$field['default']);
 				}
 			}
