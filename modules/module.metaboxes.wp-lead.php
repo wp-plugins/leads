@@ -610,7 +610,13 @@ function wpleads_display_metabox_main() {
 						wp_lead_display_extra_data($social_values, 'social'); // Display extra social
 					?>
 				</div>
-
+				<?php
+				/* Display WP USer edit link */
+				if ( $wp_user_id = get_post_meta( $post->ID , 'wpleads_wordpress_user_id' , true ) ) {
+					$edit_user_link = get_edit_user_link( $wp_user_id );
+					echo '<a  target="_blank" href="'.$edit_user_link.'">'. __( 'Edit User Profile' , 'leads' ) .'</a>';
+				}
+				?>
 			</div>
 			<style type="text/css">.icon32-posts-wp-lead {background-image: url("<?php echo $gravatar2;?>") !important;}</style>
 			<div id="leads-right-col">
@@ -637,6 +643,8 @@ function wpleads_display_metabox_main() {
 
 			//wp_lead_display_extra_data($values, 'photo'); // Display extra photos
 			echo "<div id='wpl-after-main-fields'>";
+
+
 			do_action('wpleads_after_main_fields'); // Custom Action for additional info above Lead list
 			echo "</div>";
 
@@ -655,6 +663,7 @@ function wpleads_display_metabox_main() {
 			   			$wpleads_search_data = json_decode($wpleads_search_data, true);
 		    			if (is_array($wpleads_search_data)){
 		    				$search_count = count($wpleads_search_data);
+
 		    			} else {
 		    				$search_count = 0;
 		    			}
@@ -685,7 +694,7 @@ function wpleads_display_metabox_main() {
 								     	   'count' => $comment_count ),
 								     array('id'=>'lead-searches',
 								     	   'label'=> __( 'Searches' , 'leads' ),
-								     	   'count' => $conversion_count )
+								     	   'count' => $search_count )
 								     );
 
 					$nav_items = apply_filters('wpl_lead_activity_tabs',$nav_items); ?>
