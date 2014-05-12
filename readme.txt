@@ -65,6 +65,9 @@ This is a free plugin that was built to help people collect, store, and manage l
 
 We built Lead Management as a framework! You can use our extendable framework to bring custom solutions to your application.
 
+[Follow Development on GitHub ](https://github.com/inboundnow/leads "Follow & Contribute to core development on GitHub")
+[Follow Development on Twitter ](https://twitter.com/gitleads "See our latest development commits on Twitter")
+
 == Installation ==
 
 1. Upload `wordpress-leads` folder to the `/wp-content/plugins/` directory
