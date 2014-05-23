@@ -7,13 +7,13 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: leads, lead capture, lead tracking, lead collection, lead management, crm, crm tools,customer relationship management, contact management, landing page leads, extendable
 Requires at least: 3.8
 Tested up to: 3.8
-Stable Tag: 1.3.7
+Stable Tag: 1.3.8
 
 Track visitor activity, capture and manage incoming leads, and send collected emails to your email service provider.
 
 == Description ==
 
-> WordPress Leads works as a standalone plugin or hand in hand with [WordPress Landing Pages](http://wordpress.org/plugins/landing-pages/ "Learn more about WordPress Landing Pages") & [WordPress Calls to Action](http://wordpress.org/plugins/cta/ "Learn more about Calls to Action") to create a powerful & free lead generation system for your business.
+>WordPress Leads works as a standalone plugin or hand in hand with [WordPress Landing Pages](http://wordpress.org/plugins/landing-pages/ "Learn more about WordPress Landing Pages") & [WordPress Calls to Action](http://wordpress.org/plugins/cta/ "Learn more about Calls to Action") to create a powerful & free lead generation system for your business.
 
 Wordpress leads gives you powerful visitor tracking where Google Analytics leaves off ( aka tie website activity directly to a specific individual) It allows you to track every activity that a visitor takes on your site, before converting on a web form.
 
@@ -66,7 +66,7 @@ This is a free plugin that was built to help people collect, store, and manage l
 We built Lead Management as a framework! You can use our extendable framework to bring custom solutions to your application.
 
 [Follow Development on GitHub ](https://github.com/inboundnow/leads "Follow & Contribute to core development on GitHub")
- | 
+ |
 [Follow Development on Twitter ](https://twitter.com/gitleads "See our latest development commits on Twitter")
 
 == Installation ==
@@ -84,6 +84,11 @@ We built Lead Management as a framework! You can use our extendable framework to
 4. Get Notified on Lead Conversions
 
 == Changelog ==
+= 1.3.8 =
+* Added events to lead tracking
+* Bug Fix: Marketing Button
+* Optimized CTA Tracking JS.
+
 = 1.3.7 =
 * Temporary fix for shortcodes disappearing from wordpress 3.8 to 3.9
 * Performance improvements on analytics and lead tracking
