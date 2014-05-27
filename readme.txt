@@ -6,6 +6,8 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: leads, lead capture, lead tracking, lead collection, lead management, crm, crm tools,customer relationship management, contact management, landing page leads, extendable
 Requires at least: 3.8
+Tested up to: 3.9
+Stable Tag: 1.3.8
 Tested up to: 3.8
 Stable Tag: 1.3.8
 
@@ -84,6 +86,11 @@ We built Lead Management as a framework! You can use our extendable framework to
 4. Get Notified on Lead Conversions
 
 == Changelog ==
+= 1.3.8 =
+* Overwrite core wordpress email template with customizable email templates.
+* Lead notification email templates can now be customized.
+* Improve analytics
+
 = 1.3.8 =
 * Added events to lead tracking
 * Bug Fix: Marketing Button
