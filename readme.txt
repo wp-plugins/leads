@@ -6,14 +6,14 @@ License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Tags: leads, lead capture, lead tracking, lead collection, lead management, crm, crm tools,customer relationship management, contact management, landing page leads, extendable
 Requires at least: 3.8
-Tested up to: 3.8
-Stable Tag: 1.3.7
+Tested up to: 3.9
+Stable Tag: 1.3.8
 
 Track visitor activity, capture and manage incoming leads, and send collected emails to your email service provider.
 
 == Description ==
 
-> WordPress Leads works as a standalone plugin or hand in hand with [WordPress Landing Pages](http://wordpress.org/plugins/landing-pages/ "Learn more about WordPress Landing Pages") & [WordPress Calls to Action](http://wordpress.org/plugins/cta/ "Learn more about Calls to Action") to create a powerful & free lead generation system for your business.
+>WordPress Leads works as a standalone plugin or hand in hand with [WordPress Landing Pages](http://wordpress.org/plugins/landing-pages/ "Learn more about WordPress Landing Pages") & [WordPress Calls to Action](http://wordpress.org/plugins/cta/ "Learn more about Calls to Action") to create a powerful & free lead generation system for your business.
 
 Wordpress leads gives you powerful visitor tracking where Google Analytics leaves off ( aka tie website activity directly to a specific individual) It allows you to track every activity that a visitor takes on your site, before converting on a web form.
 
@@ -84,6 +84,11 @@ We built Lead Management as a framework! You can use our extendable framework to
 4. Get Notified on Lead Conversions
 
 == Changelog ==
+= 1.3.8 =
+* Overwrite core wordpress email template with customizable email templates.
+* Lead notification email templates can now be customized.
+* Improve analytics
+
 = 1.3.7 =
 * Temporary fix for shortcodes disappearing from wordpress 3.8 to 3.9
 * Performance improvements on analytics and lead tracking
