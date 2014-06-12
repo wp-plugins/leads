@@ -604,10 +604,7 @@
 							 email_contents = jQuery('#content').val(); 
 						}
 						
-<<<<<<< HEAD
-=======
 						
->>>>>>> 28a9b85340851e5d51ac441d2150aca3e59859ac
 						var email_exists = InboundShortcodes.get_email();
 						console.log(email_exists);
 						if(email_exists != "" ) {
@@ -983,7 +980,7 @@
 				var shortcode = jQuery(this).attr('data-launch-sc');
 
 				setTimeout(function() {
-				 tb_show( inbound_load.pop_title, inbound_load.image_dir + 'popup.php?popup=' + shortcode + '&width=' + 900 + "&path=" + inbound_load.image_dir);
+				 tb_show( inbound_load.pop_title, inbound_load.image_dir + 'popup.php?popup=' + shortcode + '&width=' + 900 + "&path=" + encodeURIComponent(inbound_load.image_dir));
 				        }, 500);
 
 			});
@@ -1016,10 +1013,11 @@
 				window.history.replaceState({}, document.title, window_url);
 			}
 
-		jQuery('#list-add-toggle').click( function() {
+			jQuery('#list-add-toggle').click( function() {
 				jQuery('#list-add-wrap').toggleClass( 'wp-hidden-child' );
 				return false;
 			});
+			
 			jQuery('#list-add-submit').click( function() {
 				var list_val = jQuery('#newformlist').val();
 				var list_parent_val = jQuery('#newlist_parent').val();
