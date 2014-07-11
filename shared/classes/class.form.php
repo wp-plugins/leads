@@ -3,8 +3,8 @@
  * Creates Inbound Form Shortcode
  */
 
-if (!class_exists('InboundForms')) {
-class InboundForms {
+if (!class_exists('Inbound_Forms')) {
+class Inbound_Forms {
 	static $add_script;
 	//=============================================
 	// Hooks and Filters
@@ -309,7 +309,7 @@ class InboundForms {
 						'.$icon_insert.''.$submit_button.$inner_button.'</button></div><input type="hidden" name="inbound_submitted" value="1">';
 					// <!--<input type="submit" '.$submit_button_type.' class="button" value="'.$submit_button.'" name="send" id="inbound_form_submit" />-->
 
-			$form .= '<input type="hidden" name="inbound_form_name" class="inbound_form_name" value="'.$form_name.'"><input type="hidden" name="inbound_form_lists" id="inbound_form_lists" value="'.$lists.'"><input type="hidden" name="inbound_form_id" value="'.$id.'"><input type="hidden" name="inbound_current_page_url" value="'.$current_page.'"><input type="hidden" name="inbound_furl" value="'. base64_encode($redirect) .'"><input type="hidden" name="inbound_notify" value="'. base64_encode($notify) .'"></form></div>';
+			$form .= '<input type="hidden" name="inbound_form_name" class="inbound_form_name" value="'.$form_name.'"><input type="hidden" name="inbound_form_lists" id="inbound_form_lists" value="'.$lists.'"><input type="hidden" name="inbound_form_id" class="inbound_form_id" value="'.$id.'"><input type="hidden" name="inbound_current_page_url" value="'.$current_page.'"><input type="hidden" name="inbound_furl" value="'. base64_encode($redirect) .'"><input type="hidden" name="inbound_notify" value="'. base64_encode($notify) .'"></form></div>';
 			$form .= "<style type='text/css'>.inbound-button-submit{ {$font_size} }</style>";
 			$form = preg_replace('/<br class="inbr".\/>/', '', $form); // remove editor br tags
 
@@ -384,8 +384,9 @@ class InboundForms {
 		echo '<script type="text/javascript">
 			jQuery(document).ready(function($){
 
+	
 			jQuery("form").submit(function(e) {
-				jQuery("form").find("input").each(function(){
+				jQuery(this).find("input").each(function(){
 				    if(!jQuery(this).prop("required")){
 				    } else if (!jQuery(this).val()) {
 					alert("Oops! Looks like you have not filled out all of the required fields!");
@@ -816,29 +817,35 @@ class InboundForms {
 
 				$field = strtolower($field);
 
-				if (preg_match( '/Email|e-mail|email/i', $value)) {
-					$field = "email";
+				if (preg_match( '/Email|e-mail|email/i', $field)) {
+					$field = "wpleads_email_address";
 				}
 
-				if (preg_match( '/(?<!((last |last_)))name(?!\=)/im', $value) && !isset($form_data['first-name'])) {
-					$field = "first-name";
+				if (preg_match( '/(?<!((last |last_)))name(?!\=)/im', $field) && !isset($form_data['first-name'])) {
+					$field = "wpleads_first_name";
 				}
 
-				if (preg_match( '/(?<!((first)))(last name|last_name|last)(?!\=)/im', $value) && !isset($form_data['last-name'])) {
-					$field = "last-name";
+				if (preg_match( '/(?<!((first)))(last name|last_name|last)(?!\=)/im', $field) && !isset($form_data['last-name'])) {
+					$field = "wpleads_last_name";
 				}
 
-				if (preg_match( '/Phone|phone number|telephone/i', $value)) {
-					$field = "phone";
+				if (preg_match( '/Phone|phone number|telephone/i', $field)) {
+					$field = "wpleads_work_phone";
 				}
 
 				$form_post_data[$field] = strip_tags( $value );
 			}
-
+			
+			
 			$form_meta_data['post_id'] = $_POST['inbound_form_id']; // pass in form id
-			self::send_conversion_admin_notification($form_post_data , $form_meta_data);
-			self::send_conversion_lead_notification($form_post_data , $form_meta_data);
+			
+			/* Send emails if passes spam checks - spam checks happen on lead store ajax script and here on the email actions script - redundantly */
+			if (!apply_filters( 'form_submission_spam_check' , $form_post_data ) ) {
+				self::send_conversion_admin_notification($form_post_data , $form_meta_data);
+				self::send_conversion_lead_notification($form_post_data , $form_meta_data);
+			}
 
+			/* hook runs after form actions are completed and before page redirect */
 			do_action('inboundnow_form_submit_actions', $form_post_data, $form_meta_data);
 
 			/* redirect now */
@@ -901,7 +908,7 @@ class InboundForms {
 			$headers = apply_filters( 'inbound_lead_notification_email_headers' , $headers );
 
 			foreach ($to_address as $key => $recipient) {
-				$result = wp_mail( $recipient , $subject , utf8_encode($body) , $headers );
+				$result = wp_mail( $recipient , $subject , $body , $headers );
 			}
 
 		} else {
@@ -1297,5 +1304,5 @@ class InboundForms {
 	}
 }
 
-InboundForms::init();
+Inbound_Forms::init();
 ?>

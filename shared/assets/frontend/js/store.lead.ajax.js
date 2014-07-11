@@ -190,7 +190,7 @@ function run_field_map_function(el, lookingfor) {
 
 function return_mapped_values(this_form) {
 	// Map form fields
-	jQuery(this_form).find('input,textarea,select').each(function() {
+	jQuery(this_form).find('input[type!="hidden"],textarea,select').each(function() {
 		console.log('run');
 		var this_input = jQuery(this);
 		var this_input_val = this_input.val();
@@ -323,11 +323,12 @@ function inbound_form_submit(this_form, e) {
 	// Set variables after mapping
 	inbound_data['email'] = (!inbound_data['email']) ? this_form.find('.inbound-email').val() : inbound_data['email'];
 	inbound_data['form_name'] = this_form.find('.inbound_form_name').val() || "Not Found";
+	inbound_data['form_id'] = this_form.find('.inbound_form_id').val() || "Not Found";
 	inbound_data['first_name'] = (!inbound_data['first_name']) ? inbound_data['name'] : inbound_data['first_name'];
-	inbound_data['last_name'] = inbound_data['last_name'] || false;
-	inbound_data['phone'] = inbound_data['phone'] || false;
-	inbound_data['company'] = inbound_data['company'] || false;
-	inbound_data['address'] = inbound_data['address'] || false;
+	inbound_data['last_name'] = inbound_data['last_name'] || '';
+	inbound_data['phone'] = inbound_data['phone'] || '';
+	inbound_data['company'] = inbound_data['company'] || '';
+	inbound_data['address'] = inbound_data['address'] || '';
 
 	// Fallbacks for values
 	inbound_data['name'] = (inbound_data['first_name'] && inbound_data['last_name']) ? inbound_data['first_name'] + " " + inbound_data['last_name'] : inbound_data['name'];
@@ -401,8 +402,7 @@ jQuery(document).ready(function($) {
 		}
 	}
 
-	//console.log(inbound_data);
-	if ( jQuery('.wpl-search-box').length ) {
+
 	/* Core Inbound Search Tracking Script */
 	jQuery("body").on('submit', '.wpl-search-box', function (e) {
 		var inbound_search_data = jQuery.totalStorage('inbound_search') || {},
@@ -477,11 +477,9 @@ jQuery(document).ready(function($) {
 
 
 	});
-	}
 
 
 	/* Core Inbound Form Tracking Script */
-	if ( jQuery('.wpl-track-me').length ) {
 	jQuery("body").on('submit', '.wpl-track-me', function (e) {
 		var inbound_data = inbound_data || {},
 		this_form = jQuery(this),
@@ -566,7 +564,7 @@ jQuery(document).ready(function($) {
 		});
 
 	});
-	}
+	
 
 	/* Core Inbound Link Tracking */
 	if ( jQuery('.wpl-track-me-link').length ) {
