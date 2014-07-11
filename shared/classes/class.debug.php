@@ -8,13 +8,13 @@ if (!defined('INBOUND_CLASS_URL'))
     define('INBOUND_CLASS_URL', plugin_dir_url(__FILE__));
 
   //update_option( 'inbound_global_dequeue', "" );
-  /*
+  /**
   $global_array = get_option( 'inbound_global_dequeue' );
   print_r($global_array);
   /**/
 
-if (!class_exists('InboundDebugScripts')) {
-  class InboundDebugScripts {
+if (!class_exists('Inbound_Debug_Scripts')) {
+  class Inbound_Debug_Scripts {
     static $add_debug;
 
   /*  Contruct
@@ -73,7 +73,7 @@ if (!class_exists('InboundDebugScripts')) {
                 wp_dequeue_script( $handle );
             }
             //wp_enqueue_script( 'jquery' );
-            wp_register_script('inbound-debug', WP_CTA_URLPATH . 'shared/classes/js/debug.js', array('jquery'));
+            wp_register_script('inbound-debug', INBOUDNOW_SHARED_URLPATH . 'classes/js/debug.js', array('jquery'));
             wp_enqueue_script( 'inbound-debug' );
 
             foreach ( $store as $handle ) {
@@ -396,7 +396,7 @@ display: inline-block;}
              echo "</div>";
 
              // This will control the dequing
-             /*
+             /**
              foreach ($scripts_queued as $key => $value) {
               //echo $key . $value;
               if (!in_array($value, $white_list_scripts)){
@@ -412,6 +412,6 @@ display: inline-block;}
 /*  Initialize InboundNow Debug
  *  --------------------------------------------------------- */
 
-InboundDebugScripts::init();
+Inbound_Debug_Scripts::init();
 
 ?>
