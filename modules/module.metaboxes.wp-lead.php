@@ -578,14 +578,14 @@ function wpleads_display_metabox_main() {
 			$size = 150;
 			$size_small = 36;
 			$url = site_url();
-			$default = WPL_URL . '/images/gravatar_default_150.jpg';
+			$default = WPL_URLPATH . '/images/gravatar_default_150.jpg';
 
 			$gravatar = "http://www.gravatar.com/avatar/" . md5( strtolower( trim( $email ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size;
 			$gravatar2 = "http://www.gravatar.com/avatar/" . md5( strtolower( trim( $email ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size_small;
 
 			if (in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1'))) {
 			    $gravatar = $default;
-			   	$gravatar2 = WPL_URL . '/images/gravatar_default_32-2x.png';
+			   	$gravatar2 = WPL_URLPATH . '/images/gravatar_default_32-2x.png';
 			}
 			// If social picture exists use it
 			if(preg_match("/gravatar_default_/", $gravatar) && $extra_image != ""){
@@ -1118,10 +1118,10 @@ function wpleads_render_setting($fields)
 				$links = explode(';',$field['value']);
 				$links = array_filter($links);
 
-				echo "<div style='text-align:right;float:right'><span class='add-new-link'>".__( 'Add New Link')." <img src='".WPL_URL."/images/add.png' title='".__( 'add link' ) ."' align='ABSMIDDLE' class='wpleads-add-link' 'id='{$id}-add-link'></span></div>";
+				echo "<div style='text-align:right;float:right'><span class='add-new-link'>".__( 'Add New Link')." <img src='".WPL_URLPATH."/images/add.png' title='".__( 'add link' ) ."' align='ABSMIDDLE' class='wpleads-add-link' 'id='{$id}-add-link'></span></div>";
 				echo "<div class='wpleads-links-container' id='{$id}-container'>";
 
-				$remove_icon = WPL_URL.'/images/remove.png';
+				$remove_icon = WPL_URLPATH.'/images/remove.png';
 
 				if (count($links)>0)
 				{
@@ -1463,43 +1463,43 @@ function wpleads_get_link_icon($link)
 {
 	switch (true){
 		case strstr($link,'facebook.com'):
-			$icon = WPL_URL.'/images/icons/facebook.png';
+			$icon = WPL_URLPATH.'/images/icons/facebook.png';
 			break;
 		case strstr($link,'linkedin.com'):
-			$icon = WPL_URL.'/images/icons/linkedin.png';
+			$icon = WPL_URLPATH.'/images/icons/linkedin.png';
 			break;
 		case strstr($link,'twitter.com'):
-			$icon = WPL_URL.'/images/icons/twitter.png';
+			$icon = WPL_URLPATH.'/images/icons/twitter.png';
 			break;
 		case strstr($link,'pinterest.com'):
-			$icon = WPL_URL.'/images/icons/pinterest.png';
+			$icon = WPL_URLPATH.'/images/icons/pinterest.png';
 			break;
 		case strstr($link,'plus.google.'):
-			$icon = WPL_URL.'/images/icons/google.png';
+			$icon = WPL_URLPATH.'/images/icons/google.png';
 			break;
 		case strstr($link,'youtube.com'):
-			$icon = WPL_URL.'/images/icons/youtube.png';
+			$icon = WPL_URLPATH.'/images/icons/youtube.png';
 			break;
 		case strstr($link,'reddit.com'):
-			$icon = WPL_URL.'/images/icons/reddit.png';
+			$icon = WPL_URLPATH.'/images/icons/reddit.png';
 			break;
 		case strstr($link,'badoo.com'):
-			$icon = WPL_URL.'/images/icons/badoo.png';
+			$icon = WPL_URLPATH.'/images/icons/badoo.png';
 			break;
 		case strstr($link,'meetup.com'):
-			$icon = WPL_URL.'/images/icons/meetup.png';
+			$icon = WPL_URLPATH.'/images/icons/meetup.png';
 			break;
 		case strstr($link,'livejournal.com'):
-			$icon = WPL_URL.'/images/icons/livejournal.png';
+			$icon = WPL_URLPATH.'/images/icons/livejournal.png';
 			break;
 		case strstr($link,'myspace.com'):
-			$icon = WPL_URL.'/images/icons/myspace.png';
+			$icon = WPL_URLPATH.'/images/icons/myspace.png';
 			break;
 		case strstr($link,'deviantart.com'):
-			$icon = WPL_URL.'/images/icons/deviantart.png';
+			$icon = WPL_URLPATH.'/images/icons/deviantart.png';
 			break;
 		default:
-			$icon = WPL_URL.'/images/icons/link.png';
+			$icon = WPL_URLPATH.'/images/icons/link.png';
 			break;
 	}
 

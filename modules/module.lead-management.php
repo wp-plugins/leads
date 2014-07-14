@@ -144,20 +144,20 @@ function lead_management_js() {
 		if ( $screen->id != 'wp-lead_page_lead_management')
 		        return; // exit if incorrect screen id
 		wp_enqueue_script(array('jquery', 'editor', 'thickbox', 'media-upload'));
-		wp_enqueue_script('selectjs', WPL_URL . '/shared/js/select2.min.js');
-		wp_enqueue_style('selectjs', WPL_URL . '/shared/css/select2.css');
-		wp_enqueue_script('tablesort', WPL_URL . '/js/management/tablesort.min.js');
+		wp_enqueue_script('selectjs', WPL_URLPATH . '/shared/js/select2.min.js');
+		wp_enqueue_style('selectjs', WPL_URLPATH . '/shared/css/select2.css');
+		wp_enqueue_script('tablesort', WPL_URLPATH . '/js/management/tablesort.min.js');
 
-		wp_enqueue_script('light-table-filter', WPL_URL . '/js/management/light-table-filter.min.js');
-		wp_register_script( 'modernizr', WPL_URL . '/js/management/modernizr.custom.js' );
+		wp_enqueue_script('light-table-filter', WPL_URLPATH . '/js/management/light-table-filter.min.js');
+		wp_register_script( 'modernizr', WPL_URLPATH . '/js/management/modernizr.custom.js' );
 		wp_enqueue_script( 'modernizr' );
-		wp_enqueue_script('tablesort', WPL_URL . '/js/management/tablesort.min.js');
-		wp_enqueue_script('jquery-dropdown', WPL_URL . '/js/management/jquery.dropdown.js');
-		wp_enqueue_script('bulk-manage-leads', WPL_URL . '/js/management/admin.js');
+		wp_enqueue_script('tablesort', WPL_URLPATH . '/js/management/tablesort.min.js');
+		wp_enqueue_script('jquery-dropdown', WPL_URLPATH . '/js/management/jquery.dropdown.js');
+		wp_enqueue_script('bulk-manage-leads', WPL_URLPATH . '/js/management/admin.js');
 		wp_localize_script( 'bulk-manage-leads' , 'bulk_manage_leads', array( 'admin_url' => admin_url( 'admin-ajax.php' )));
 		wp_enqueue_script('jqueryui');
 		wp_enqueue_script('jquery-ui-selectable'); // FINSIH THIS http://jqueryui.com/selectable/
-		wp_enqueue_style('wpleads-list-css', WPL_URL.'/css/admin-management.css');
+		wp_enqueue_style('wpleads-list-css', WPL_URLPATH.'/css/admin-management.css');
 		wp_admin_css('thickbox');
 		add_thickbox();
 }
