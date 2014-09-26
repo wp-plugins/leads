@@ -4,7 +4,7 @@ Plugin Name: Leads
 Plugin URI: http://www.inboundnow.com/leads/
 Description: Track website visitor activity, manage incoming leads, and send collected emails to your email service provider.
 Author: Inbound Now
-Version: 1.4.6
+Version: 1.5.0
 Author URI: http://www.inboundnow.com/
 Text Domain: leads
 Domain Path: lang
@@ -22,12 +22,12 @@ if ( ! class_exists( 'Inbound_Leads_Plugin' ) ) {
 			self::define_constants();
 			self::includes();
 			self::load_shared_files();
-			self::load_text_domain();
+			self::load_text_domain_init();
 		}
 
 		/* Setup plugin constants */
 		private static function define_constants() {
-			define('WPL_CURRENT_VERSION', '1.4.6' );
+			define('WPL_CURRENT_VERSION', '1.5.0' );
 			define('WPL_URLPATH',  plugins_url( '/', __FILE__ ) );
 			define('WPL_PATH', WP_PLUGIN_DIR."/".dirname( plugin_basename( __FILE__ ) ) );
 			define('WPL_CORE', plugin_basename( __FILE__ ) );
@@ -44,12 +44,12 @@ if ( ! class_exists( 'Inbound_Leads_Plugin' ) ) {
 
 			if ( is_admin() ) {
 
-
 				/* Admin Includes */
-				require_once('modules/module.activate.php');
+				require_once('classes/class.activation.php');
+				require_once('classes/class.activation.upgrade-routines.php');
 				require_once('modules/module.ajax-setup.php');
 				require_once('modules/module.nav-menus.php');
-				require_once('modules/module.metaboxes.wp-lead.php');
+				require_once('classes/class.metaboxes.wp-lead.php');
 				require_once('modules/module.post-type.wp-lead.php');
 				require_once('modules/module.post-type.landing-pages.php');
 				require_once('modules/module.lead-management.php');
@@ -59,9 +59,12 @@ if ( ! class_exists( 'Inbound_Leads_Plugin' ) ) {
 				require_once('modules/module.tracking.php');
 				require_once('modules/module.enqueue-admin.php');
 				require_once('modules/module.form-integrations.php');
-				require_once('classes/class.post-type.email-template.php');
 				require_once('classes/class.metaboxes.email-template.php');
 				require_once('classes/class.wordpress-core.email.php');
+				require_once('classes/class.inbound-api.php');
+				require_once('classes/class.inbound-api.api-key-generation.php');
+				require_once('classes/class.inbound-api.api-keys-table.php');
+				require_once('classes/class.admin-notices.php');
 
 			} else {
 				/* Frontend Includes */
@@ -69,12 +72,14 @@ if ( ! class_exists( 'Inbound_Leads_Plugin' ) ) {
 				require_once('modules/module.ajax-setup.php');
 				require_once('modules/module.post-type.wp-lead.php');
 				require_once('modules/module.form-integrations.php');
-				require_once('classes/class.post-type.email-template.php');
 				require_once('classes/class.metaboxes.email-template.php');
 				require_once('classes/class.wordpress-core.email.php');
+				require_once('classes/class.inbound-api.php');
+				
 				/* load frontend */
 				require_once('modules/module.enqueue-frontend.php');
 				require_once('modules/module.tracking.php');
+				
 
 			}
 
@@ -87,14 +92,20 @@ if ( ! class_exists( 'Inbound_Leads_Plugin' ) ) {
 			add_action( 'plugins_loaded', array( 'Inbound_Load_Shared' , 'init') , 1 );
 		}
 
+		
 		/**
-		*  Loads the correct .mo file for this plugin
+		* Hook method to load correct text domain
 		*
 		*/
-		private static function load_text_domain() {
-			add_action('init' , function() {
-				load_plugin_textdomain( 'leads' , false , WPL_SLUG . '/lang/' );
-			});
+		private static function load_text_domain_init() {
+			add_action( 'init' , array( __CLASS__ , 'load_text_domain' ) );
+		}
+
+		/**
+		*   Loads the text domain
+		*/
+		public static function load_text_domain() {
+			load_plugin_textdomain( 'leads' , false , WPL_SLUG . '/lang/' );
 		}
 	}
 
@@ -106,4 +117,5 @@ if ( ! class_exists( 'Inbound_Leads_Plugin' ) ) {
 
 // Legacy function
 function wpleads_check_active() {
+	return true;
 }
