@@ -18,6 +18,8 @@ if (!class_exists('Inbound_Load_Shared')) {
 			self::load_constants();
 			self::load_files();
 			self::load_legacy_elements();
+			self::load_activation_rules();
+			
 		}
 		
 		/**
@@ -26,8 +28,9 @@ if (!class_exists('Inbound_Load_Shared')) {
 		 */
 		public static function load_constants() {
 			define( 'INBOUDNOW_SHARED' , 'loaded' );
-			define( 'INBOUDNOW_SHARED_PATH' ,	self::get_shared_path() );
-			define( 'INBOUDNOW_SHARED_URLPATH' ,	self::get_shared_urlpath() );
+			define( 'INBOUDNOW_SHARED_PATH' , self::get_shared_path() );
+			define( 'INBOUDNOW_SHARED_URLPATH' , self::get_shared_urlpath() );
+			define( 'INBOUDNOW_SHARED_FILE' , self::get_shared_file() );
 		}
 		
 		/**
@@ -37,6 +40,7 @@ if (!class_exists('Inbound_Load_Shared')) {
 		public static function load_files() {			
 
 			include_once( INBOUDNOW_SHARED_PATH . 'classes/class.post-type.wp-lead.php'); 	
+			include_once( INBOUDNOW_SHARED_PATH . 'classes/class.post-type.email-template.php'); 	
 			include_once( INBOUDNOW_SHARED_PATH . 'classes/class.form.php');	// Mirrored forms		
 			include_once( INBOUDNOW_SHARED_PATH . 'classes/class.menu.php');	// Inbound Marketing Menu
 			include_once( INBOUDNOW_SHARED_PATH . 'classes/class.feedback.php');	// Inbound Feedback Form
@@ -46,6 +50,7 @@ if (!class_exists('Inbound_Load_Shared')) {
 			include_once( INBOUDNOW_SHARED_PATH . 'classes/class.shortcodes.email-template.php'); 
 			include_once( INBOUDNOW_SHARED_PATH . 'classes/class.lead-fields.php');	
 			include_once( INBOUDNOW_SHARED_PATH . 'classes/class.inbound-forms.akismet.php');	
+			include_once( INBOUDNOW_SHARED_PATH . 'classes/class.welcome.php');	
 			include_once( INBOUDNOW_SHARED_PATH . 'tracking/store.lead.php'); // Lead Storage from landing pages
 			
 			include_once( INBOUDNOW_SHARED_PATH . 'shortcodes/inbound-shortcodes.php');	// Shared Shortcodes
@@ -104,6 +109,43 @@ if (!class_exists('Inbound_Load_Shared')) {
 				return LANDINGPAGES_URLPATH . '/shared/';
 			} else if (	defined('WPL_URLPATH') ) {
 				return WPL_URLPATH . '/shared/';
+			}
+		}
+		
+		/**
+		 *  Returns the correct __FILE__ string 
+		 *  
+		 *  @return plugin path/filename.php
+		 *  
+		 */
+		public static function get_shared_file() {
+			if ( defined('WP_CTA_FILE') ) {
+				return WP_CTA_FILE;
+			} else if (	defined('LANDINGPAGES_URLPATH') ) {
+				return LANDINGPAGES_FILE;
+			} else if (	defined('WPL_FILE') ) {
+				return WPL_FILE;
+			}
+		}
+		
+		/**
+		*  Hooks shared activation rules into admin_init
+		*/
+		public static function load_activation_rules() {
+			add_action('admin_init' , array( __CLASS__ , 'run_activation_rules') );
+		}
+		
+		/**
+		*  Run activation rules hosted in shared directory 
+		*/
+		public static function run_activation_rules() {
+			if ( is_admin() && get_option( 'Inbound_Activate' ) ) {
+				
+				/* Delete activation trigger */
+				delete_option( 'Inbound_Activate' );
+				
+				/* Run activation action hook for shared components */
+				do_action( 'inbound_shared_activate' );
 			}
 		}
 	}	
