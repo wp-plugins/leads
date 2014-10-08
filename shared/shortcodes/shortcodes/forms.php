@@ -2,6 +2,7 @@
 /**
 *   Inbound Forms Shortcode Options
 *   Forms code found in /shared/classes/form.class.php
+*   master code
 */
 
 	if (empty($lead_list_names)){
@@ -273,7 +274,7 @@
 				),
 				'helper' => array(
 					'name' => __('Field Description <span class="small-optional-text">(optional)</span>',  'leads'),
-					'desc' => __('<span class="show-advanced-fields">▶ Show advanced fields</span>',  'leads'),
+					'desc' => __('<span class="show-advanced-fields">Show advanced fields</span>',  'leads'),
 					'type' => 'helper-block',
 					'std' => '',
 					'class' => '',
