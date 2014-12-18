@@ -308,6 +308,9 @@ h2 .nav-tab {
 	font-size: 13px;
 	margin: 0;
 }
+.wpl-raw-data-tr:last-of-type {
+	border-bottom: none;
+}
 #all-lead-history .recent-conversion-item {
 	border-bottom: none;
 }
@@ -315,13 +318,14 @@ h2 .nav-tab {
 	border-bottom: none;
 }
 #lead-google-map {
-	margin-left: -17px;
+	margin-left: -21px;
+	margin-bottom: -4px;
 }
 .maps-link {
 	float: right;
 	margin-right: -10px;
 	font-size: 10px;
-	margin-top: -5px;
+	margin-top: -19px;
 }
 
 .wpl-raw-data-td-label {
