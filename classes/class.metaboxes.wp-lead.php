@@ -272,18 +272,23 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 
 			if (!isset($geodata)) {
 				$geodata = wp_remote_get('http://www.geoplugin.net/php.gp?ip='.$ip_address);
-				$geodata = unserialize(  $geodata['body'] );
+				if(!is_wp_error($geodata)){
+					$geodata = unserialize(  $geodata['body'] );
+				}
 			}
 
-			if (!is_array($geodata)) {
+			if (!is_array($geodata) || is_wp_error($geodata) ) {
+				echo "<h2>".__('No Geo data collected' , 'leads')."</h2>";
 				return;
 			}
-
-			$latitude = $geodata['geoplugin_latitude'];
-			$longitude = $geodata['geoplugin_longitude'];
+			if($ip_address === "127.0.0.1") {
+					echo "<h3>".__('Last conversion detected from localhost' , 'leads')."</h3>";
+			}
+			$latitude = (isset($geodata['geoplugin_latitude'])) ? $geodata['geoplugin_latitude'] : 'NA';
+			$longitude = (isset($geodata['geoplugin_longitude'])) ? $geodata['geoplugin_longitude'] : 'NA';
 
 			?>
-			<div >
+			<div>
 				<div class="inside" style='margin-left:-8px;text-align:left;'>
 					<div id='last-conversion-box'>
 						<div id='lead-geo-data-area'>
@@ -319,7 +324,7 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 										<iframe width="278" height="276" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?f=q&amp;source=s_q&amp;hl=en&amp;q='.$latitude.','.$longitude.'&amp;aq=&amp;output=embed&amp;z=11"></iframe>
 										</div>';
 							}
-						}else {
+						} else {
 							echo "<h2>".__('No Geo data collected' , 'leads')."</h2>";
 						}
 						?>
@@ -333,8 +338,7 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 		/**
 		*	Save meta data
 		*/
-		public static function save_data( $post_id )
-		{
+		public static function save_data( $post_id ) {
 			global $post;
 
 			if ( !isset( $post ) || $post->post_type != 'wp-lead' ) {
@@ -348,19 +352,19 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 
 			/* lead status */
 			if (isset($_POST['wp_lead_status'])) {
-				update_post_meta( $post_id, 'wp_lead_status', $_POST[ $key ] );
+				update_post_meta( $post_id, 'wp_lead_status', $_POST['wp_lead_status'] );
 			}
 
 			/* Loop through mappable fields and save data */
 			$Leads_Field_Map = new Leads_Field_Map();
 			$wpleads_user_fields = $Leads_Field_Map->get_lead_fields();
 
-			foreach ($wpleads_user_fields as $key=>$field)
-			{
+			foreach ($wpleads_user_fields as $key=>$field) {
 
 				$old = get_post_meta($post_id, $field['key'], true);
-				if (isset($_POST[$field['key']]))
-				{
+
+				if (isset($_POST[$field['key']])) {
+
 					$new = $_POST[$field['key']];
 
 					if (is_array($new))	{
@@ -368,9 +372,9 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 						array_filter($new);
 						$new = implode(';',$new);
 						update_post_meta($post_id, $field['key'], $new);
-					}
-					else if (isset($new) && $new != $old )
-					{
+
+					} else if (isset($new) && $new != $old ) {
+
 						update_post_meta($post_id, $field['key'], $new);
 
 						if ($field['key']=='wpleads_email_address') {
@@ -378,9 +382,10 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 							wp_update_post($args);
 						}
 
-					}
-					else if ('' == $new && $old) {
+					} else if ('' == $new && $old) {
+
 						delete_post_meta($post_id, $field['key'], $old);
+
 					}
 				}
 			}
@@ -395,12 +400,15 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 			}
 
 			if ( $hook == 'post-new.php' ) {
+
 			}
 
 			if ( $hook == 'post.php' ) {
+
 			}
 
 			if ($hook == 'post-new.php' || $hook == 'post.php') {
+
 			}
 		}
 
@@ -748,8 +756,8 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 			$url = site_url();
 			$default = WPL_URLPATH . '/images/gravatar_default_150.jpg';
 
-			$gravatar = "http://www.gravatar.com/avatar/" . md5( strtolower( trim( self::$mapped_fields['wpleads_email_address']['value'] ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size;
-			$gravatar2 = "http://www.gravatar.com/avatar/" . md5( strtolower( trim( self::$mapped_fields['wpleads_email_address']['value'] ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size_small;
+			$gravatar = "//www.gravatar.com/avatar/" . md5( strtolower( trim( self::$mapped_fields['wpleads_email_address']['value'] ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size;
+			$gravatar2 = "//www.gravatar.com/avatar/" . md5( strtolower( trim( self::$mapped_fields['wpleads_email_address']['value'] ) ) ) . "?d=" . urlencode( $default ) . "&s=" . $size_small;
 
 			if (in_array($_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1'))) {
 				$gravatar = $default;
@@ -876,11 +884,11 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 					'label'=> __( 'Comments' , 'leads' ),
 					'count' => self::get_comment_count()
 				),
-				array(
+				/*array(
 					'id'=>'lead-searches',
 					'label'=> __( 'Searches' , 'leads' ),
 					'count' => self::get_search_count()
-				),
+				),*/
 				array(
 					'id'=>'lead-tracked-links',
 					'label'=> __( 'Custom Events' , 'leads' ),
@@ -948,7 +956,8 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 				}
 
 				$conversion_date_raw = new DateTime($converted_page_time);
-				$date_of_conv = $conversion_date_raw->format('F jS, Y \a\t g:ia (l)');
+				//$date_of_conv = $conversion_date_raw->format('F jS, Y \a\t g:ia (l)');
+				$date_of_conv = $conversion_date_raw->format('F jS, Y	g:ia (l)');
 				$conversion_clean_date = $conversion_date_raw->format('Y-m-d H:i:s');
 
 				// Display Data
@@ -1234,7 +1243,7 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 			self::activity_navigation();
 			self::activity_conversions();
 			self::activity_comments();
-			self::activity_searches();
+			//self::activity_searches();
 			self::activity_pageviews();
 			self::activity_custom_events();
 
@@ -1275,12 +1284,15 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 
 			$new_array = array();
 			$loop = 0;
-
 			// Combine and loop through all page view objects
 			foreach(self::$page_views as $key=>$val)
 			{
 				foreach(self::$page_views[$key] as $test){
 						$new_array[$loop]['page'] = $key;
+						$test = preg_replace('/\\//', "-", $test);
+						if(!strstr($test, "UTC")) {
+							$test .= " UTC";
+						}
 						$new_array[$loop]['date'] = $test;
 						$loop++;
 				}
@@ -1288,7 +1300,8 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 
 			$new_array = array_merge($c_array, $new_array); // Merge conversion and page view json objects
 
-			//uasort($new_array, array( __CLASS__ , 'datetime_sort_reverse' ) ); // Date sort
+
+			uasort($new_array, array( __CLASS__ , 'datetime_sort_reverse' ) ); // Date sort
 
 
 			$new_key_array = array();
@@ -1298,6 +1311,8 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 				$new_key_array[ $num ] = $val;
 				$num++;
 			}
+
+			//uasort($new_key_array, array( __CLASS__ , 'datetime_sort_reverse' ) ); // Date sort
 
 
 			$new_loop = 1;
@@ -1431,6 +1446,8 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 				<?php
 					$count--;
 				}
+			} else {
+				echo "<h2>No Referral Data Detected.</h2>";
 			}
 		}
 		/**
@@ -1543,7 +1560,7 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 				}
 				else
 				{
-					echo "<span id='wpl-message-none'>". __( 'No raw data found!' ,'leads') ."</span>";
+					//echo "<span id='wpl-message-none'>". __( 'No raw data found!' ,'leads') ."</span>";
 				}
 
 				?>
