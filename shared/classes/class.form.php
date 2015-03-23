@@ -128,8 +128,8 @@ if (!class_exists('Inbound_Forms')) {
 				$form = '<div id="inbound-form-wrapper" class="">';
 				$form .= '<form class="inbound-now-form wpl-track-me inbound-track" method="post" id="'.$form_id.'" action="" style="'.$form_width.'">';
 				$main_layout = ($form_layout != "") ? 'inbound-'.$form_layout : 'inbound-normal';
-				for($i = 0; $i < count($matches[0]); $i++)
-				{
+				
+				for($i = 0; $i < count($matches[0]); $i++)	{
 
 					$label = (isset($matches[3][$i]['label'])) ? $matches[3][$i]['label'] : '';
 
@@ -346,7 +346,7 @@ if (!class_exists('Inbound_Forms')) {
 
 						$form .= '<input type="hidden" name="stop_dirty_subs" class="stop_dirty_subs" value="">';
 
-					} else {
+					} else if ($type === 'text')  {
 						$hidden_param = (isset($matches[3][$i]['dynamic'])) ? $matches[3][$i]['dynamic'] : '';
 						$fill_value = (isset($matches[3][$i]['default'])) ? $matches[3][$i]['default'] : '';
 						$dynamic_value = (isset($_GET[$hidden_param])) ? $_GET[$hidden_param] : '';
@@ -356,6 +356,8 @@ if (!class_exists('Inbound_Forms')) {
 						
 						$input_type = ( $email_input ) ? 'email' : 'text';
 						$form .=	'<input type="'.$input_type .'" class="inbound-input inbound-input-text '.$formatted_label . $input_classes.' '.$field_input_class.'" name="'.$field_name.'" '.$form_placeholder.' id="'.$field_name.'" value="'.$fill_value.'" '.$data_mapping_attr.$et_output.' '.$req.'/>';
+					} else {
+						do_action('inbound_form_custom_field' , $matches[3][$i] );
 					}
 
 					if ($show_labels && $form_labels === "bottom" && $type != "radio") {
@@ -474,21 +476,21 @@ if (!class_exists('Inbound_Forms')) {
 			/* TODO remove this */
 			echo '<script type="text/javascript">
 
-				InboundQuery(document).ready(function($){
+				jQuery(document).ready(function($){
 
-					InboundQuery("form").submit(function(e) {
+					jQuery("form").submit(function(e) {
 
 						// added below condition for check any of checkbox checked or not by kirit dholakiya
-						if( InboundQuery(\'.checkbox-required\')[0] && InboundQuery(\'.checkbox-required input[type=checkbox]:checked\').length==0)
+						if( jQuery(\'.checkbox-required\')[0] && jQuery(\'.checkbox-required input[type=checkbox]:checked\').length==0)
 						{
-							InboundQuery(\'.checkbox-required input[type=checkbox]:first\').focus();
+							jQuery(\'.checkbox-required input[type=checkbox]:first\').focus();
 							alert("' . __( 'Oops! Looks like you have not filled out all of the required fields!' , 'inbound-pro' ) .'");
 							e.preventDefault();
 							e.stopImmediatePropagation();
 						}
-						InboundQuery(this).find("input").each(function(){
-							if(!InboundQuery(this).prop("required")){
-							} else if (!InboundQuery(this).val()) {
+						jQuery(this).find("input").each(function(){
+							if(!jQuery(this).prop("required")){
+							} else if (!jQuery(this).val()) {
 							alert("' . __( 'Oops! Looks like you have not filled out all of the required fields!' , 'inbound-pro' ) .'");
 
 							e.preventDefault();
@@ -498,21 +500,21 @@ if (!class_exists('Inbound_Forms')) {
 						});
 					});
 
-					InboundQuery("#inbound_form_submit br").remove(); // remove br tags
+					jQuery("#inbound_form_submit br").remove(); // remove br tags
 					function validateEmail(email) {
 
 						var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 						return re.test(email);
 					}
 					var parent_redirect = parent.window.location.href;
-					InboundQuery("#inbound_parent_page").val(parent_redirect);
+					jQuery("#inbound_parent_page").val(parent_redirect);
 
 
 					// validate email
-					InboundQuery("input.inbound-email").on("change keyup", function (e) {
-						var $this = InboundQuery(this);
+					jQuery("input.inbound-email").on("change keyup", function (e) {
+						var $this = jQuery(this);
 						var email = $this.val();
-						InboundQuery(".inbound_email_suggestion").remove();
+						jQuery(".inbound_email_suggestion").remove();
 						if (validateEmail(email)) {
 							$this.css("color", "green");
 							$this.addClass("inbound-valid-email");
@@ -528,9 +530,9 @@ if (!class_exists('Inbound_Forms')) {
 					});
 
 					/* Trims whitespace on advancing to the next input */
-					InboundQuery("input[type=\'text\']").on("blur" , function() {
-						var value = InboundQuery.trim( $(this).val() );
-						InboundQuery(this).val( value );
+					jQuery("input[type=\'text\']").on("blur" , function() {
+						var value = jQuery.trim( $(this).val() );
+						jQuery(this).val( value );
 					})
 
 
