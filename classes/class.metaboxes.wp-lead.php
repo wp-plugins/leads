@@ -700,6 +700,7 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 			$fields = array();
 
 			$mapped_fields = Leads_Field_Map::get_lead_fields();
+			$mapped_fields = Leads_Field_Map::prioritize_lead_fields( $mapped_fields );
 
 			foreach ($mapped_fields as $key => $field) {
 
@@ -931,7 +932,7 @@ if ( !class_exists( 'Inbound_Metaboxes_Leads' ) ) {
 		public static function activity_conversions() {
 
 			echo '<div id="lead-conversions" class="lead-activity">';
-			echo '	<h2>' . __('Landing Page Conversions' , 'leads' ) .'</h2>';
+			echo '	<h2>' . __('Conversions' , 'leads' ) .'</h2>';
 
 
 			if (!isset(self::$conversions) || !is_array(self::$conversions)) {
