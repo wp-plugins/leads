@@ -77,7 +77,7 @@ class Inbound_Shortcodes {
 
 			if (isset($post)&&post_type_supports($post->post_type,'editor')||isset($post)&&'wp-call-to-action' === $post->post_type) {
 				wp_enqueue_script('inbound-shortcodes', INBOUNDNOW_SHARED_URLPATH . 'shortcodes/js/shortcodes.js', array( 'jquery', 'jquery-cookie' ));
-				$form_id = (isset($_GET['post'])) ? $_GET['post'] : '';
+				$form_id = (isset($_GET['post']) && is_int( $_GET['post'] )) ? $_GET['post'] : ''; 
 				wp_localize_script( 'inbound-shortcodes', 'inbound_shortcodes', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) , 'adminurl' => admin_url(), 'inbound_shortcode_nonce' => wp_create_nonce('inbound-shortcode-nonce') , 'form_id' => $form_id ) );
 				wp_enqueue_script('selectjs', INBOUNDNOW_SHARED_URLPATH . 'shortcodes/js/select2.min.js');
 				wp_enqueue_style('selectjs', INBOUNDNOW_SHARED_URLPATH . 'shortcodes/css/select2.css');
@@ -657,6 +657,20 @@ class Inbound_Shortcodes {
 			</ol>
 		</div>
 		<div id="inbound-email-response">
+		    <?php
+
+            if (defined('INBOUND_PRO_PATH')) {
+            ?>
+            <h3><?php _e( 'Inbound Pro Users' , INBOUNDNOW_TEXT_DOMAIN ); ?></h3>
+            <div class='' style='padding-left:20px;'>
+
+                <?php echo sprintf( __( ' Membership holders should ignore the setup area below and referrer to %s this document %s for instructions on setting up a followup email. We are leaveing this section in up for non members and for members that are leveraging it. We may remove it remove it entirely from the Inbound Pro plugin. ' , INBOUNDNOW_TEXT_DOMAIN ) , '<a href="http://docs.inboundnow.com/guide/creating-a-follow-up-email-using-inbound-now-as-an-autoresponder-marketing-automation/">', '</a>') ; ?>
+            </div>
+            <br>
+            <?php
+            }
+            ?>
+
 			<h2><?php _e( 'Set Email Response to Send to the person filling out the form' , INBOUNDNOW_TEXT_DOMAIN ); ?></h2>
 			<?php
 			$values = get_post_custom( $post->ID );
@@ -758,7 +772,7 @@ class Inbound_Shortcodes {
 							<?php if( $shortcode->no_preview ) : ?>
 								<div id="inbound-shortcodes-nopreview"><?php _e('Shortcode has no preview', 'leads'); ?></div>
 							<?php else :
-							    if ( isset($_REQUEST['post']) ) {
+							    if ( isset($_REQUEST['post']) && is_int($_REQUEST['post'])  ) {
 								    $post_id = html_entity_decode( $_REQUEST['post'] );
                                 } else {
                                     $post_id = 0;
