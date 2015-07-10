@@ -74,7 +74,7 @@ if (!class_exists('Inbound_Metaboxes_Leads')) {
             add_meta_box('wplead-quick-stats-metabox', __("Lead Stats", 'leads'), array(__CLASS__, 'display_quick_stats'), 'wp-lead', 'side', 'high');
 
             /* Show IP Address & Geolocation metabox */
-            add_meta_box('lp-ip-address-sidebar-preview', __('Last Conversion Activity Location', 'leads'), array(__CLASS__, 'display_geolocation'), 'wp-lead', 'side', 'low');
+            //add_meta_box('lp-ip-address-sidebar-preview', __('Last Conversion Activity Location', 'leads'), array(__CLASS__, 'display_geolocation'), 'wp-lead', 'side', 'low');
 
             /* Main metabox */
             add_meta_box('wplead_metabox_main', // $id
@@ -254,7 +254,7 @@ if (!class_exists('Inbound_Metaboxes_Leads')) {
             }
 
             if (!isset($geodata)) {
-                $geodata = wp_remote_get('http://www.geoplugin.net/php.gp?ip=' . $ip_address);
+                $geodata = wp_remote_get('http://www.geoplugin.net/php.gp?ip=' . $ip_address , array('timeout'=>'2'));
                 if (!is_wp_error($geodata)) {
                     $geodata = unserialize($geodata['body']);
                 }
