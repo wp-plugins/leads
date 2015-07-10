@@ -163,7 +163,8 @@ if (!class_exists('LeadStorage')) {
 
 				/* Store IP addresss & Store GEO Data */
 				if ($lead['ip_address']) {
-					self::store_geolocation_data($lead);
+                    update_post_meta( $lead['id'], 'wpleads_ip_address', $ip_addresses );
+					//self::store_geolocation_data($lead);
 				}
 
 
@@ -375,8 +376,6 @@ if (!class_exists('LeadStorage')) {
 		*/
 		static function update_common_meta($lead) {
 
-			//print_r($lead);
-
 			if (!empty($lead['user_ID'])) {
 				/* Update user_ID if exists */
 				update_post_meta( $lead['id'], 'wpleads_wordpress_user_id', $lead['user_ID'] );
@@ -396,11 +395,10 @@ if (!class_exists('LeadStorage')) {
 			$lead_fields = Leads_Field_Map::build_map_array();
 			foreach ( $lead_fields as $key => $value ) {
 				$shortkey = str_replace('wpleads_' , '' , $key );
-				if (isset($lead[$shortkey])) {
+				if (!empty($lead[$shortkey]) && $lead[$shortkey] !== 0 ) {
 					update_post_meta( $lead['id'], $key, $lead[$shortkey] );
 				}
 			}
-			//exit;
 		}
 
 		/**
@@ -422,7 +420,7 @@ if (!class_exists('LeadStorage')) {
 			/* ignore for local environments */
 			if ($lead['ip_address']!= "127.0.0.1"){ // exclude localhost
 				$response = wp_remote_get('http://www.geoplugin.net/php.gp?ip='.$lead['ip_address']);
-				if ( isset($response['body']) ) {
+				if ( !is_wp_error($response) &&  isset($response['body'])  ) {
 					$geo_array = @unserialize($response['body']);
 					$new_record[ $lead['ip_address'] ]['geodata'] = $geo_array;
 				}
@@ -491,6 +489,14 @@ if (!class_exists('LeadStorage')) {
 		static function improve_lead_name( $lead ) {
             /* */
             $lead['name'] = (isset($lead['name'])) ? $lead['name'] : '';
+
+            /* do not let names with 'false' pass */
+            if ( !empty($lead['name']) && $lead['name'] == 'false' ) {
+                $lead['name'] = '';
+            }
+            if ( !empty($lead['first_name']) && $lead['first_name'] == 'false' ) {
+                $lead['first_name'] = '';
+            }
 
 			/* if last name empty and full name present */
 			if ( empty($lead['last_name']) && $lead['name'] ) {
