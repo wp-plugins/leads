@@ -4,7 +4,7 @@ Plugin Name: Leads
 Plugin URI: http://www.inboundnow.com/leads/
 Description: Track website visitor activity, manage incoming leads, and send collected emails to your email service provider.
 Author: Inbound Now
-Version: 1.7.1
+Version: 1.8.1
 Author URI: http://www.inboundnow.com/
 Text Domain: leads
 Domain Path: lang
@@ -26,7 +26,7 @@ if ( ! class_exists( 'Inbound_Leads_Plugin' ) ) {
 		*  Setup plugin constants
 		*/
 		private static function define_constants() {
-			define('WPL_CURRENT_VERSION', '1.7.1' );
+			define('WPL_CURRENT_VERSION', '1.8.1' );
 			define('WPL_URLPATH',  plugins_url( '/', __FILE__ ) );
 			define('WPL_PATH', WP_PLUGIN_DIR."/".dirname( plugin_basename( __FILE__ ) ) . '/' );
 			define('WPL_CORE', plugin_basename( __FILE__ ) );
@@ -48,38 +48,27 @@ if ( ! class_exists( 'Inbound_Leads_Plugin' ) ) {
 				/* Admin Includes */
 				include_once( WPL_PATH . 'classes/class.activation.php');
 				include_once( WPL_PATH . 'classes/class.activation.upgrade-routines.php');
-				include_once( WPL_PATH . 'modules/module.ajax-setup.php');
-				include_once( WPL_PATH . 'modules/module.nav-menus.php');
+				include_once( WPL_PATH . 'classes/class.post-type.wp-lead.php');
 				include_once( WPL_PATH . 'classes/class.metaboxes.wp-lead.php');
-				include_once( WPL_PATH . 'modules/module.post-type.wp-lead.php');
-				include_once( WPL_PATH . 'modules/module.post-type.landing-pages.php');
 				include_once( WPL_PATH . 'classes/class.lead-management.php');
-				include_once( WPL_PATH . 'modules/module.form-integrations.php');
-				include_once( WPL_PATH . 'modules/module.global-settings.php');
+				include_once( WPL_PATH . 'classes/class.form-integrations.php');
+				include_once( WPL_PATH . 'classes/class.settings.php');
 				include_once( WPL_PATH . 'classes/class.dashboard.php');
-				include_once( WPL_PATH . 'modules/module.tracking.php');
-				include_once( WPL_PATH . 'modules/module.enqueue-admin.php');
-				include_once( WPL_PATH . 'modules/module.form-integrations.php');
+				include_once( WPL_PATH . 'classes/class.tracking.php');
 				include_once( WPL_PATH . 'classes/class.admin-notices.php');
 				include_once( WPL_PATH . 'classes/class.branching.php');
 				include_once( WPL_PATH . 'classes/class.login.php');
 
 			} else {
 				/* Frontend Includes */
-				/* load global */
-				include_once( WPL_PATH . 'modules/module.ajax-setup.php');
-				include_once( WPL_PATH . 'modules/module.post-type.wp-lead.php');
-				include_once( WPL_PATH . 'modules/module.form-integrations.php');
+				include_once( WPL_PATH . 'classes/class.post-type.wp-lead.php');
+				include_once( WPL_PATH . 'classes/class.form-integrations.php');
 				include_once( WPL_PATH . 'classes/class.login.php');
-
-				/* load frontend */
 				include_once( WPL_PATH . 'modules/module.enqueue-frontend.php');
-				include_once( WPL_PATH . 'modules/module.tracking.php');
-
+				include_once( WPL_PATH . 'classes/class.tracking.php');
 
 			}
 
-			//require_once INBOUND_NOW_PATH . 'includes/install.php';
 		}
 
 		/**
@@ -106,7 +95,7 @@ if ( ! class_exists( 'Inbound_Leads_Plugin' ) ) {
 		*   Loads the text domain
 		*/
 		public static function load_text_domain() {
-			load_plugin_textdomain( 'leads' , false , WPL_SLUG . '/lang/' );
+			load_plugin_textdomain( 'leads' , false , WPL_SLUG . '/assets/lang/' );
 		}
 
 		/* START PHP VERSION CHECKS */

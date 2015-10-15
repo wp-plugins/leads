@@ -286,20 +286,20 @@ $shortcodes_config['forms'] = array(
                 'std' => '0',
                 'class' => '',
             ),
-            'exclude_tracking' => array(
+            'helper' => array(
+                'name' => __('Field Description <span class="small-optional-text">(optional)</span>',  INBOUNDNOW_TEXT_DOMAIN ),
+                'desc' => __('<span class="show-advanced-fields button">Show advanced options</span>',  INBOUNDNOW_TEXT_DOMAIN ),
+                'type' => 'helper-block',
+                'std' => '',
+                'class' => '',
+            ),
+			'exclude_tracking' => array(
                 'name' => __('Exclude Tracking? <span class="small-optional-text">(optional)</span>', INBOUNDNOW_TEXT_DOMAIN ),
                 'checkbox_text' => __('Check to exclude this form field from being tracked. Note this will not store in your Database', INBOUNDNOW_TEXT_DOMAIN ),
                 'desc' => '',
                 'type' => 'checkbox',
                 'std' => '0',
                 'class' => 'advanced',
-            ),
-            'helper' => array(
-                'name' => __('Field Description <span class="small-optional-text">(optional)</span>',  INBOUNDNOW_TEXT_DOMAIN ),
-                'desc' => __('<span class="show-advanced-fields">Show advanced fields</span>',  INBOUNDNOW_TEXT_DOMAIN ),
-                'type' => 'helper-block',
-                'std' => '',
-                'class' => '',
             ),
             'map_to' => array(
                 'name' => __('Map Field To  <span class="small-optional-text">(optional)</span>', INBOUNDNOW_TEXT_DOMAIN ),
@@ -430,7 +430,7 @@ if (is_admin()) {
                         $shortcode = 'N/A';
                     }
 
-                    echo '<input type="text" class="regular-text code short-shortcode-input" readonly="readonly" id="shortcode" name="shortcode" value=\'[inbound_forms id="'.$post_id.'" name="'.$form_name.'"]\'>';
+                    echo '<input type="text" onclick="select()" class="regular-text code short-shortcode-input" readonly="readonly" id="shortcode" name="shortcode" value=\'[inbound_forms id="'.$post_id.'" name="'.$form_name.'"]\'>';
                     break;
                 case "inbound-form-converions":
                     $count = get_post_meta( $post_id, 'inbound_form_conversion_count', true);
